@@ -42,7 +42,8 @@ const Header = () => {
     }
     fetchCategories()
   },[]);
-
+   
+  //handle logout
   const handleLogout = async () => {
     try {
       const response = await logout();

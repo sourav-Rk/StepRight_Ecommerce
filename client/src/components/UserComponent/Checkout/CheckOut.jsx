@@ -8,6 +8,8 @@ import { getAddresses } from "@/Api/User/addressApi"
 import {  message } from "antd"
 import { placeOrder } from "@/Api/User/orderApi"
 import { Button } from "@/components/ui/button"
+import OrderSuccessPage from "../Order/OrderSuccessPage"
+
 
 export default function CheckoutPage() {
   // State for selected address & payment
@@ -16,12 +18,13 @@ export default function CheckoutPage() {
   const [products, setProducts] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState()
+  const [orderSucces,setOrderSuccess] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
   
   //to get addresses
   const fetchAddresses = async () => {
      try{
         const addressResponse = await getAddresses();
-        console.log(addressResponse)
         const isDefaultAddress = addressResponse.addresses.find(x => x.isDefault);
         setAddresses(addressResponse.addresses);
         setSelectedAddressIndex(isDefaultAddress);
@@ -37,7 +40,6 @@ export default function CheckoutPage() {
     try{
 
         const productsResponse = await proceedToCheckout();
-        console.log("product",productsResponse)
         setProducts(productsResponse.cart.items || []);
     }
     catch(error){
@@ -58,7 +60,7 @@ export default function CheckoutPage() {
     0
   )
 
-  const tax = subtotal * 0.08
+  const tax = subtotal * 0.12
   const total = subtotal + tax
 
   //handler to place order
@@ -66,24 +68,40 @@ export default function CheckoutPage() {
      const selectedAddressObj = addresses.find(addr => addr._id === selectedAddress);
      if(!selectedAddressObj){
         message.error("Please selece a valid address to continue");
+        return;
+     }
+     if(!selectedPayment){
+        message.error("Please selecet a payment method")
+        return;
      }
 
      const orderData = {
         paymentMethod : selectedPayment,
         deliveryAddress : selectedAddressObj,
+        subtotal : subtotal,
+        tax : tax,
         totalAmount : total
      };
 
      try{
-        console.log(orderData)
         const response = await placeOrder(orderData);
         message.success(response.message);
+        setOrderDetails(response.newOrder)
+        console.log(response.newOrder)
+        setOrderSuccess(true);
      }
      catch(error){
         message.error(error?.message)
         console.log(error)
      }
   }
+
+    // If order is successful, show the OrderSuccessPage component with order details
+    if (orderSucces && orderDetails) {
+        return (
+          <OrderSuccessPage orderDetails={orderDetails} />
+        );
+      }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">

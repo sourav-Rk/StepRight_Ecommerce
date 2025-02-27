@@ -90,7 +90,7 @@ const ShoppingCart = () => {
             </p>
             <Button 
               size="lg"
-              onClick={() => window.history.back()}
+              onClick={() => navigate("/shop-all")}
               className="bg-black hover:bg-gray-800 text-white"
             >
               Explore Products

@@ -32,7 +32,7 @@
     const navigate = useNavigate();
 
     // Handle input changes
-    const handleChange = (e) => {
+    const handleInputChange = (e) => {
       const { name, value } = e.target;
     
       setFormData((prev) => ({

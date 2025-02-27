@@ -9,7 +9,8 @@ import { editProfile, getUserProfile } from '../controllers/UserController/profi
 import { addAddress, deleteAddress, editAddress, getAddress, getAddresses, setDefaultAddress } from '../controllers/UserController/addressController.js';
 import { addToCart, getCartProducts, proceedToCheckout, removeCartItem, updateCartItemQuantity } from '../controllers/UserController/cartController.js';
 import { validateProduct } from '../Middleware/productCheckMiddleware.js';
-import { placeOrder } from '../controllers/UserController/orderController.js';
+import { cancelOrder, getOrderById, getUserOrders, placeOrder } from '../controllers/UserController/orderController.js';
+import { advancedSearchProducts } from '../controllers/UserController/advancedSearchController.js';
 
 
 //Login and Signup Routes
@@ -30,6 +31,7 @@ router.get('/categories',getCategoryToDisplay); //get the products based on the 
 router.get('/category/:categoryId', getProductsByCategory); //get products by category 
 router.get('/products/related',getRelatedProducts); //get related products
 router.get('/products/:id',getProductDetails); // get the product detail 
+router.get('/advancedSearch',advancedSearchProducts);
 
 //profile routes
 router.get('/profile',verifyUser,verifyUserBlocked,getUserProfile) //get user details
@@ -53,5 +55,8 @@ router.get('/proceedToCheckout',verifyUser, verifyUserBlocked, proceedToCheckout
 
 //orders
 router.post('/orders',verifyUser,verifyUserBlocked, validateProduct,placeOrder);
+router.get('/orders',verifyUser, verifyUserBlocked, getUserOrders);
+router.get('/orders/:orderId',verifyUser, verifyUserBlocked , getOrderById);
+router.patch('/orders/:orderId/cancel', verifyUser, verifyUserBlocked,cancelOrder);
 
 export default router;

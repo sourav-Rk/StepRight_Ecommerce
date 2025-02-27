@@ -30,7 +30,7 @@ export const validateProduct = async(req, res, next) => {
         req.cartItems = items.map((item) => {
             return {
                 product : item.product._id,
-                productPrice:item.product.price,
+                productPrice:item.price,
                 size : item.size,
                 quantity : item.quantity
             }

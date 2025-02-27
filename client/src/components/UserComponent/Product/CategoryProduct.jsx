@@ -71,7 +71,6 @@ const CategoryProduct = () => {
       {/* Filters and Sorting */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex space-x-4">
-          <button className="px-4 py-2 bg-gray-200 rounded-md">Filter</button>
           <select className="px-4 py-2 bg-gray-200 rounded-md">
             <option>Sort by: Best selling</option>
             <option>Price: Low to High</option>

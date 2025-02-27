@@ -46,6 +46,14 @@ const orderSchema = new mongoose.Schema({
       return today;
     },
   },
+  subtotal: {
+     type: Number,
+      required: true 
+   }, 
+  tax: {
+     type: Number,
+      required: true
+     },   
   totalAmount: {
     type: Number,
     required: true,

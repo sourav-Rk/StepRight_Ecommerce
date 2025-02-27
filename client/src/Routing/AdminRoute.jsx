@@ -14,6 +14,8 @@ import ProductListPage from "@/Pages/AdminPages/ProductPage/ProductListPage";
 import SizePage from "@/Pages/AdminPages/SizePage/SizePage";
 import EditProductPage from "@/Pages/AdminPages/ProductPage/ProductEditPage";
 import NotFound from "@/components/Common/NotFound";
+import OrderListPage from "@/Pages/AdminPages/OrderListPage/OrderListPage";
+import OrderDetailsPage from "@/Pages/AdminPages/OrderListPage/OrderDetailsPage";
 
 
 
@@ -31,7 +33,9 @@ const AdminRoute = () => {
             <Route path="products" element={<AdminPrivate><ProductListPage/></AdminPrivate>} />
             <Route path="/size" element={<AdminPrivate><SizePage/></AdminPrivate>} />
             <Route path="/edit-product/:id" element={<AdminPrivate><EditProductPage/></AdminPrivate>}/>
-
+            
+            <Route path="/orders" element={<AdminPrivate><OrderListPage/></AdminPrivate>}/>
+            <Route path="/orders/:orderId" element={<AdminPrivate><OrderDetailsPage/></AdminPrivate>}/>
             <Route path="*" element={<NotFound />} />          
         </Routes>     
 

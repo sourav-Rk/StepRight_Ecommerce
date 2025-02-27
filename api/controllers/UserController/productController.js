@@ -184,6 +184,7 @@ export const getProducts = async (req, res) =>{
                 isActive: 1,
                 variants: 1,
                 totalStock: { $sum: "$variants.quantity" },
+                createdAt : 1,
               },
             },
           ]);
@@ -295,6 +296,9 @@ export const getRelatedProducts = async (req, res) =>{
         res.status(500).json({message : "Internal server error"});
     }
 }
+
+// to sort and search the products
+
 
 
 

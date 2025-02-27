@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosInstance from "../axios";
 
 //Api call for fetching sneakers
@@ -77,43 +78,13 @@ export const getRelatedProducts = async (categoryId, currentProductId)=>{
     }
 }
 
-
-
-
-
-
-// //Api call for fetching sneakers for category product page
-// export const getSneaker = async(page, limit) =>{
-//     try{
-//         const response = await axiosInstance.get(`/users/products/sneaker?page=${page}?limit=${limit}`);
-//         return response.data;
-//     }
-//     catch(error){
-//         throw error?.response?.data || error
-//     }
-    
-// }
-
-
-// //Api call for fetching sneakers for category product page
-// export const getRunningShoe = async(page, limit) =>{
-//     try{
-//         const response = await axiosInstance.get(`/users/products/runningShoes?page=${page}?limit=${limit}`);
-//         return response.data;
-//     }
-//     catch(error){
-//         throw error?.response?.data || error
-//     }
-    
-// }
-// //Api call for fetching sneakers for category product page
-// export const getHighTop = async(page, limit) =>{
-//     try{
-//         const response = await axiosInstance.get(`/users/products/highTops?page=${page}?limit=${limit}`);
-//         return response.data;
-//     }
-//     catch(error){
-//         throw error?.response?.data || error
-//     }
-    
-// }
+//API call for advanced search
+export const advancedSearch = async(sortBy, page, limit) =>{
+    try {
+        const response = await axiosInstance.get(`/users/advancedSearch?page=${page}&limit=${limit}&sortBy=${sortBy}`);
+        return response.data;
+    }
+    catch(error){
+        throw error?.response?.data || error
+    }
+}

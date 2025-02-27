@@ -13,6 +13,7 @@
     import { uploadImages} from "../controllers/AdminController/imageUploadController.js"
     import { upload } from "../Cloudinary/cloudinary.js";
     import { addSize, blockSize, getSizes, getSizesForProduct } from "../controllers/AdminController/sizeController.js";
+import { getAllOrders, updateOrderStatus } from "../controllers/AdminController/orderController.js";
 
     //Login
     router.post("/login", verifyLogin);
@@ -48,7 +49,11 @@
     //Size
     router.get('/size', verifyAdmin ,getSizes)
     router.post('/add/size', verifyAdmin, addSize);
-    router.put('/block-size/:id', verifyAdmin, blockSize);        
+    router.put('/block-size/:id', verifyAdmin, blockSize);   
+    
+    //orders
+    router.get('/orders',verifyAdmin,getAllOrders);
+    router.patch('/orders/:orderId', verifyAdmin, updateOrderStatus)
 
     //upload images
     router.post('/upload', (req, res, next) => {

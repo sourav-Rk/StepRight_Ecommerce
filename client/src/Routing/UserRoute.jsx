@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes ,Route, Navigate } from "react-router-dom";
+import { Routes ,Route } from "react-router-dom";
 import { useAuth } from "@/Redux/authSelector";
 
 import Signup from "@/Pages/UserPages/Auth/Signup.jsx";
@@ -23,6 +23,11 @@ import AddressListPage from "@/Pages/UserPages/AddressPage/AddressListPage";
 import ShoppingCart from "@/components/UserComponent/Cart/Cart";
 import CartPage from "@/Pages/UserPages/CartPage/CartPage";
 import CheckOutPage from "@/Pages/UserPages/CheckOutPage/CheckOutPage";
+import OrderSuccessPage from "@/components/UserComponent/Order/OrderSuccessPage";
+import UserOrders from "@/components/UserComponent/Order/UserOrders";
+import UserOrdersPage from "@/Pages/UserPages/UserOrders/UserOrdersPage";
+import OrderDetails from "@/components/UserComponent/Order/OrderDetail";
+import OrderDetailPage from "@/Pages/UserPages/UserOrders/OrderDetail";
 
 
 
@@ -50,9 +55,11 @@ const UserRoute = () => {
             <Route path="/address/add" element={<UserPrivate><AddressPage/></UserPrivate>}/>
             <Route path="/address/:id"element={<UserPrivate><AddressPage/></UserPrivate>}/>
            
-            <Route path="/cart" element={<CartPage/>}/>
-            <Route path="/checkout" element={<CheckOutPage/>} />
-            
+            <Route path="/cart" element={<UserPrivate><CartPage/></UserPrivate>}/>
+            <Route path="/checkout" element={<UserPrivate><CheckOutPage/></UserPrivate>} />
+            <Route path="/orders" element={<UserPrivate><UserOrdersPage/></UserPrivate>}/>
+            <Route path="/orders/:orderId" element={<UserPrivate><OrderDetailPage/></UserPrivate>} />
+
             <Route path="*" element={<NotFound />} />
             
         </Routes>
