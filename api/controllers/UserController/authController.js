@@ -16,11 +16,16 @@ import bcrypt from 'bcrypt';
 import { validateUser } from '../../Validators/userValidator.js';
 import { generateUserAccessToken } from '../../utils/jwtToken/accessToken.js';
 import { generateUserRefreshToken } from '../../utils/jwtToken/refreshToken.js';
+import { errorHandler } from '../../Middleware/error.js';
+import walletDB from '../../Models/walletSchema.js';
+import generateReferralCode from '../../utils/generateReferralCode.js';
 
 const salt = 10;
 
+
+
 //Generate and send OTP
-export const generateAndSendOTP = async (req,res) => {
+export const generateAndSendOTP = async (req,res, next) => {
     let {email,firstName, lastName, phone, password, confirmPassword } = req.body;
    
     if(!email){
@@ -36,10 +41,10 @@ export const generateAndSendOTP = async (req,res) => {
 
     try{
         const userExist = await usersDB.findOne({email});
-        if(userExist) return res.status(409).json({message : "Email already exist.Please use a different Email"})
+        if(userExist) return next(errorHandler(409,"Email already exist.Please use a different Email")) ;
 
         const phoneExist = await usersDB.findOne({phone});
-        if(phoneExist) return res.status(409).json({message : "Phone Number already existed . Please use a different Phone Number"})
+        if(phoneExist) return next(errorHandler(409,"Phone Number already existed . Please use a different Phone Number"));
 
 
         await otpDB.deleteOne({email})    
@@ -57,7 +62,7 @@ export const generateAndSendOTP = async (req,res) => {
     }
     catch(error) {
         console.log(error);
-        res.status(500).json({message :"Failed to send OTP"});
+        return next(errorHandler(500,"Failed to send the otp"));
     }
 
 };
@@ -78,7 +83,32 @@ export const verifyOTPAndCreateUser = async(req,res) => {
 
         const {formData} = otpRecord;
 
-        const hashedPassword = await bcrypt.hash(formData.password,10)
+        const hashedPassword = await bcrypt.hash(formData.password,10);
+
+        const referralCode = generateReferralCode(formData.firstName,formData.lastName);
+
+        let referredBy = null;
+
+        if(formData.referredBy) {
+            const referrer = await usersDB.findOne({referralCode : formData.referredBy });
+
+            if(referrer){
+                referredBy = referrer._id;
+
+                const referrerWallet = await walletDB.findOne({userId : referredBy._id});
+                if(referrerWallet){
+                    referrerWallet.balance+=100;
+                    referrerWallet.transactions.push({
+                        amount:100,
+                        transactionDate: new Date(),
+                        transactionType : "Credit",
+                        transactionStatus : "Success",
+                        description : `Referral bonus for referring ${formData.firstName}`,
+                    });
+                    await referrerWallet.save();
+                }
+            }
+        }
 
         const newUser = new usersDB({
             firstName : formData.firstName,
@@ -86,13 +116,32 @@ export const verifyOTPAndCreateUser = async(req,res) => {
             email : email,
             phone : formData.phone,
             password : hashedPassword,
-            isActive : true
+            referralCode,
+            isActive : true,
+            referredBy,
         });
 
         await newUser.save();
 
-        //delete otp record after successfull verification
+        //create the waller for the user
+        await walletDB.create({ userId: newUser._id, balance: 0, transactions: [] });
 
+        if(formData.referredBy){
+            const refereeWallet = await walletDB.findOne({userId : newUser._id});
+            if(refereeWallet){
+                refereeWallet.balance+=50;
+                refereeWallet.transactions.push({
+                    amount: 50,
+                    transactionDate: new Date(),
+                    transactionType: "Credit",
+                    transactionStatus: "Success",
+                    description: "Signup bonus for using a referral code"
+                });
+                await refereeWallet.save();
+            }
+        }
+
+        //delete otp record after successfull verification
         await otpDB.deleteOne({_id : otpRecord._id});
 
         res.status(201).json({message : "User created successfully"});
@@ -194,6 +243,7 @@ export const forgotVerifyEmail = async (req,res) => {
         await otpDB.deleteOne({email});
 
         const otp = generateOtp();
+        console.log(otp);
 
         const newOTP = new otpDB({
             email,
@@ -216,7 +266,6 @@ export const forgotVerifyEmail = async (req,res) => {
 export const forgotVerifyOtp = async (req,res) =>{
     const {email, otp} = req.body;
 
-    console.log(req.body);
 
     if(!email || !otp){
         return res.status(400).json({message :"Email and OTP are requird"});
@@ -249,12 +298,17 @@ export const forgotVerifyOtp = async (req,res) =>{
 
 
 //update the password
-export const forgotChangePassword = async (req, res) => {
-    const { email, newPassword } = req.body;
+export const forgotChangePassword = async (req, res, next) => {
+    const { email, newPassword, confirmPassword } = req.body;
 
-    if (!email || !newPassword) {
-        return res.status(400).json({ message: "Email and new password are required." });
+    if (!email || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: "Email , new password and confirm password are required." });
     }
+    
+    if(confirmPassword !== newPassword){
+        return next(errorHandler(400,"Passwords do not match"));
+    }
+    
 
     try {
         
@@ -292,8 +346,15 @@ export const forgotChangePassword = async (req, res) => {
 
 
 //Google aunthentication
-export const googleAuth = async(req,res)=>{
+export const googleAuth = async(req,res, next)=>{
     const {name,email} = req.body
+
+
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(newPassword)) {
+        return  next(errorHandler(400,"Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character."))
+      }
+
   
     try{
       const UserExists = await usersDB.findOne({email});
@@ -334,12 +395,11 @@ export const googleAuth = async(req,res)=>{
 
   // Function to generate a random password
 const generateRandomPassword = () => {
-return Math.random().toString(36).slice(-8); // Generates an 8-character random string
+return Math.random().toString(36).slice(-8);
 };
 
 //generate phone number
 const generateUniquePhoneNumber = () => {
-    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // Generates a 10-digit random number
-    return randomNumber; // Example: +11234567890
+    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); 
 };
   

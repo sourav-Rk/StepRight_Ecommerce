@@ -15,7 +15,7 @@ export const getAddresses = async() =>{
 //API call to get a particular address
 export const getAddress = async(id) => {
     try{
-        const response = await axiosInstance(`/users/address/${id}`);
+        const response = await axiosInstance.get(`/users/address/${id}`);
         return response.data
     }
     catch(error){

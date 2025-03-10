@@ -3,7 +3,6 @@ import CategoryDB from "../../Models/categorySchema.js";
 import BrandDB from "../../Models/brandSchema.js";
 import mongoose from "mongoose";
 
-
 //to fetch the products
 export const getProducts = async(req,res) =>{
     try{
@@ -64,7 +63,7 @@ export const getProductEdit = async(req, res) =>{
 //To add the product
 export const addProduct = async(req, res) =>{
     try{
-        console.log(req.body)
+    
         const {name, description, category, brand, offer, images, variants} = req.body;
          
         //validate the requred fields
@@ -145,102 +144,198 @@ export const addProduct = async(req, res) =>{
     }
 }
 
+// //edit the product
+// export const editProduct = async (req, res) =>{
+//     try{
+//         const {id} = req.params;
+//         const {name, description, category, brand, offer, images, variants} = req.body;
+        
+//         //validate the requred fields
+//         if(!name || !description || !category || !brand || !variants || !Array.isArray(variants) || variants.length === 0 || !images || !Array.isArray(images)){
+//             return res.status(400).json({ message : "Missing required fields"});
+//         }
+
+//         // validate category and brand
+//         const isValidCategory = await mongoose.model('Category').findById(category);
+//         if (!isValidCategory) {
+//             return res.status(400).json({ message: "Invalid category" });
+//         }
+
+//         const isValidBrand = await mongoose.model('Brand').findById(brand);
+//         if (!isValidBrand) {
+//             return res.status(400).json({ message: "Invalid brand" });
+//         }
+        
+//         //validate offer
+//         const numericOffer = Number(offer);
+//         if(offer !== undefined && (isNaN(numericOffer) || numericOffer < 0)){
+//           return res.status(400).json({ message: "Offer must be a non-negative number" });
+//         }
+
+//            //validate variants
+//            const sizeSet = new Set();
+//            for(let i = 0; i < variants.length; i++){
+//                const variant = variants[i];
+   
+//                if(!variant.size || variant.regularPrice == null || variant.quantity == null){
+//                    return res.status(400).json({message : `variant ${i+1} is missing required fields`})
+//                };
+   
+//                const sizeKey = variant.size.toString().toLowerCase();
+//                if(sizeSet.has(sizeKey)){
+//                    return res.status(400).json({message : `Duplicate variant size : ${variant.size}`});
+//                }
+//                sizeSet.add(sizeKey);
+   
+//                //validate numeric values
+//                if(Number(variant.regularPrice) < 0){
+//                    return res.status(400).json({message : `Regular price for variant ${variant.size} cannot be negative`});
+//                }
+//                if(Number(variant.quantity) < 0){
+//                    return res.status(400).json({message : `Quantity for variant ${variant.size} cannot be negative`});
+//                }
+//            }
+
+//             // check for duplicate product 
+//             const duplicateProduct = await ProductDB.findOne({
+//                 _id: { $ne: id },
+//                 name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
+//                 category,
+//                 brand,
+//             });
+//             if (duplicateProduct) {
+//                 return res.status(400).json({ message: "Product already exists" });
+//             }
+
+//            const updateObj = {
+//              name,
+//              description,
+//              category,
+//              brand,
+//              offer : numericOffer || 0,
+//              variants
+//            };
+
+//            if(images && Array.isArray(images) && images.length > 0){
+//              updateObj.images = images;
+//            }
+
+//            const updateProduct = await ProductDB.findByIdAndUpdate(id, updateObj,{
+//                new : true,
+//                runValidators : true,
+//            });
+
+//            if(!updateProduct){
+//             return res.status(404).json({message : "Product not found"});
+//            }
+
+//            return res.status(200).json({
+//               message : "Product updated successfully",
+//            });
+//      }
+//     catch(error){
+//         console.log("Error updating product",error);
+//         return res.status(500).json({
+//             message : "Internal server error"
+//         });
+//     }
+
+// }
+
 //edit the product
-export const editProduct = async (req, res) =>{
-    try{
-        const {id} = req.params;
-        const {name, description, category, brand, offer, images, variants} = req.body;
-        
-        //validate the requred fields
-        if(!name || !description || !category || !brand || !variants || !Array.isArray(variants) || variants.length === 0 || !images || !Array.isArray(images)){
-            return res.status(400).json({ message : "Missing required fields"});
+export const editProduct = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description, category, brand, offer, images, variants } = req.body;
+      
+      // Validate required fields
+      if (!name || !description || !category || !brand || !variants || !Array.isArray(variants) || variants.length === 0 || !images || !Array.isArray(images)) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+  
+      // Validate category and brand
+      const isValidCategory = await mongoose.model('Category').findById(category);
+      if (!isValidCategory) {
+        return res.status(400).json({ message: "Invalid category" });
+      }
+  
+      const isValidBrand = await mongoose.model('Brand').findById(brand);
+      if (!isValidBrand) {
+        return res.status(400).json({ message: "Invalid brand" });
+      }
+      
+      // Validate offer (convert to number)
+      const numericOffer = Number(offer);
+      if (offer !== undefined && (isNaN(numericOffer) || numericOffer < 0)) {
+        return res.status(400).json({ message: "Offer must be a non-negative number" });
+      }
+  
+      // Validate variants
+      const sizeSet = new Set();
+      for (let i = 0; i < variants.length; i++) {
+        const variant = variants[i];
+  
+        if (!variant.size || variant.regularPrice == null || variant.quantity == null) {
+          return res.status(400).json({ message: `Variant ${i + 1} is missing required fields` });
         }
-
-        // validate category and brand
-        const isValidCategory = await mongoose.model('Category').findById(category);
-        if (!isValidCategory) {
-            return res.status(400).json({ message: "Invalid category" });
+  
+        const sizeKey = variant.size.toString().toLowerCase();
+        if (sizeSet.has(sizeKey)) {
+          return res.status(400).json({ message: `Duplicate variant size: ${variant.size}` });
         }
-
-        const isValidBrand = await mongoose.model('Brand').findById(brand);
-        if (!isValidBrand) {
-            return res.status(400).json({ message: "Invalid brand" });
+        sizeSet.add(sizeKey);
+  
+        // Validate numeric values
+        if (Number(variant.regularPrice) < 0) {
+          return res.status(400).json({ message: `Regular price for variant ${variant.size} cannot be negative` });
         }
-        
-        //validate offer
-        if (offer && (typeof offer !== 'number' || offer < 0)) {
-            return res.status(400).json({ message: "Offer must be a non-negative number" });
+        if (Number(variant.quantity) < 0) {
+          return res.status(400).json({ message: `Quantity for variant ${variant.size} cannot be negative` });
         }
-
-           //validate variants
-           const sizeSet = new Set();
-           for(let i = 0; i < variants.length; i++){
-               const variant = variants[i];
-   
-               if(!variant.size || variant.regularPrice == null || variant.quantity == null){
-                   return res.status(400).json({message : `variant ${i+1} is missing required fields`})
-               };
-   
-               const sizeKey = variant.size.toString().toLowerCase();
-               if(sizeSet.has(sizeKey)){
-                   return res.status(400).json({message : `Duplicate variant size : ${variant.size}`});
-               }
-               sizeSet.add(sizeKey);
-   
-               //validate numeric values
-               if(Number(variant.regularPrice) < 0){
-                   return res.status(400).json({message : `Regular price for variant ${variant.size} cannot be negative`});
-               }
-               if(Number(variant.quantity) < 0){
-                   return res.status(400).json({message : `Quantity for variant ${variant.size} cannot be negative`});
-               }
-           }
-
-            // check for duplicate product 
-            const duplicateProduct = await ProductDB.findOne({
-                _id: { $ne: id },
-                name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
-                category,
-                brand,
-            });
-            if (duplicateProduct) {
-                return res.status(400).json({ message: "Product already exists" });
-            }
-
-           const updateObj = {
-             name,
-             description,
-             category,
-             brand,
-             offer : offer || 0,
-             variants
-           };
-
-           if(images && Array.isArray(images) && images.length > 0){
-             updateObj.images = images;
-           }
-
-           const updateProduct = await ProductDB.findByIdAndUpdate(id, updateObj,{
-               new : true,
-               runValidators : true,
-           });
-
-           if(!updateProduct){
-            return res.status(404).json({message : "Product not found"});
-           }
-
-           return res.status(200).json({
-              message : "Product updated successfully",
-           });
-     }
-    catch(error){
-        console.log("Error updating product",error);
-        return res.status(500).json({
-            message : "Internal server error"
-        });
+      }
+  
+      // Check for duplicate product
+      const duplicateProduct = await ProductDB.findOne({
+        _id: { $ne: id },
+        name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
+        category,
+        brand,
+      });
+      if (duplicateProduct) {
+        return res.status(400).json({ message: "Product already exists" });
+      }
+  
+      // Instead of using findByIdAndUpdate, retrieve the product document,
+      // update its fields, then call save() so that the pre-save hook runs.
+      const product = await ProductDB.findById(id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+  
+      product.name = name;
+      product.description = description;
+      product.category = category;
+      product.brand = brand;
+      product.offer = numericOffer || 0;
+      product.variants = variants;
+      if (images && Array.isArray(images) && images.length > 0) {
+        product.images = images;
+      }
+  
+      // Calling save() will trigger the pre-save hook to recalculate salePrice.
+      await product.save();
+  
+      return res.status(200).json({
+        message: "Product updated successfully",
+      });
+    } catch (error) {
+      console.log("Error updating product", error);
+      return res.status(500).json({
+        message: "Internal server error",
+      });
     }
-
-}
+  };
+  
 
 //fetch the categories
 export const getCategoryDropDown = async (req,res) =>{

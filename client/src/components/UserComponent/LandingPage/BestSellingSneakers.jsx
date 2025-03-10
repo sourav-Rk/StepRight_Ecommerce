@@ -39,11 +39,13 @@
               onClick={() => navigate(`/product-detail/${product._id}`)}
               >
               <ProductCard
+                  id={product._id}
                   name={product.name}
                   regularPrice={product.variants[0].regularPrice} 
-                  salePrice={product.variants[0].regularPrice-500}
+                  salePrice={product.variants[0].regularPrice+500}
                   rating={4.5} 
-                  imageUrl={product.images[0]} 
+                  imageUrl={product.images[0]}
+                  variants={product.variants} 
                 />
               </div>
             ))}

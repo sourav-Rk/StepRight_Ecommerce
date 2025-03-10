@@ -10,7 +10,8 @@ import RelatedProduct from "../RelatedProduct";
 import InfoAccordion from "../InfoAccordion";
 import { message } from "antd";
 import { addToCart } from "@/Api/User/cartApi";
-
+import { Heart } from "lucide-react";
+import { addToWishlist } from "@/Api/User/wishlistApi";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -26,7 +27,6 @@ const ProductDetails = () => {
       try {
         const data = await getProductDetails(id);
         setProduct(data.product);
-        // automatically it will select the first available variant if any exists
         if (data.product.variants && data.product.variants.length > 0) {
           const availableVariant = data.product.variants.find(
             (v) => Number(v.quantity) > 0
@@ -83,6 +83,19 @@ const ProductDetails = () => {
     }
   };
 
+  //function to handle add to wishlist
+  const handleAddToWishlist = async(producId,size) => {
+    console.log("details",producId,size);
+     try{
+       const response = await addToWishlist(producId,size);
+       message.success(response.message);
+     }
+     catch(error){
+       message.error(error?.message);
+       console.log("Error adding wishlist",error)
+     }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -99,10 +112,17 @@ const ProductDetails = () => {
     );
   }
 
-  // Compute sale price by subtracting 500
-  const salePrice = selectedVariant
-    ? Number(selectedVariant.regularPrice) + 500
-    : null;
+   // Calculate discount percentage for selected variant if applicable
+   const discountPercent =
+   selectedVariant &&
+   selectedVariant.salePrice < selectedVariant.regularPrice
+     ? Math.round(
+         ((selectedVariant.regularPrice - selectedVariant.salePrice) /
+           selectedVariant.regularPrice) *
+           100
+       )
+     : 0;
+
 
   return (
     <>
@@ -111,6 +131,9 @@ const ProductDetails = () => {
         {/* Images Carousel Section */}
         <div className="relative">
           <div className="relative aspect-square overflow-hidden rounded-lg mb-4">
+
+              {/* Discount Badge - Moved Inside the Image Container */}
+           
 
                       <Lens hovering={hovering} setHovering={setHovering}>
                         <img
@@ -177,15 +200,19 @@ const ProductDetails = () => {
             {selectedVariant && (
               <>
                 <span className="text-2xl font-bold">
-                ₹{Number(selectedVariant.regularPrice).toFixed(2)}
-                
+                ₹{Number(selectedVariant.salePrice).toFixed(2)}                
                 </span>
                 <span className="text-lg text-gray-400 line-through">
-                ₹{salePrice > 0 ? salePrice.toFixed(2) : "N/A"}
+                ₹{Number(selectedVariant.regularPrice).toFixed(2)}          
                 </span>
+                {discountPercent > 0 && (
+        <span className="text-xl font-bold animate-bounce text-green-500">
+          {discountPercent}% OFF
+        </span>
+      )}
               </>
             )}
-          </div>
+          </div>           
 
           {/* Sizes (variants) Selection */}
           <div>
@@ -266,12 +293,16 @@ const ProductDetails = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button onClick={handleAddToCart} className="w-full bg-white text-black py-4 rounded-lg font-medium hover:bg-gray-200 transition">
+            <Button onClick={handleAddToCart} className="w-full  bg-black text-white py-4 rounded-lg font-medium hover:bg-blue-950 transition">
               Add to Cart
             </Button>
-            <Button className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition">
-              Buy It Now
-            </Button>
+
+            <Button
+            onClick={() => handleAddToWishlist(product._id,selectedVariant.size)}
+            className="w-full flex items-center justify-center bg-red-500 text-white py-4 rounded-lg font-medium hover:bg-red-600 transition"
+          >
+            <Heart className="w-5 h-5 mr-2" /> Wishlist
+          </Button>
           </div>
         </div>
       </div>

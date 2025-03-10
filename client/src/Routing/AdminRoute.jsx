@@ -2,7 +2,6 @@ import React from "react";
 import {Routes, Route, Navigate} from "react-router-dom"
 
 import LoginPage from "@/Pages/AdminPages/LoginPage/LoginPage.jsx";
-
 import CustomerPage from "@/Pages/AdminPages/CustomerPage/CustomerPage";
 import DashboardPage from "@/Pages/AdminPages/DashboardPage/DashboardPage";
 import AdminLoginPrivate from "./ProtectedRouting/Admin/AdminLoginPrivate";
@@ -16,7 +15,9 @@ import EditProductPage from "@/Pages/AdminPages/ProductPage/ProductEditPage";
 import NotFound from "@/components/Common/NotFound";
 import OrderListPage from "@/Pages/AdminPages/OrderListPage/OrderListPage";
 import OrderDetailsPage from "@/Pages/AdminPages/OrderListPage/OrderDetailsPage";
-
+import AddCouponPage from "@/Pages/AdminPages/CouponPage/AddCouponPage";
+import CouponListPage from "@/Pages/AdminPages/CouponPage/CouponListPage";
+import SalesPage from "@/Pages/AdminPages/SalesPage/SalesPage";
 
 
 const AdminRoute = () => {
@@ -36,6 +37,9 @@ const AdminRoute = () => {
             
             <Route path="/orders" element={<AdminPrivate><OrderListPage/></AdminPrivate>}/>
             <Route path="/orders/:orderId" element={<AdminPrivate><OrderDetailsPage/></AdminPrivate>}/>
+            <Route path="/add/coupon" element={<AdminPrivate><AddCouponPage/></AdminPrivate>}/>
+            <Route path="/coupon" element={<AdminPrivate><CouponListPage/></AdminPrivate>}/>
+            <Route path="/sales-report" element={<AdminPrivate><SalesPage/></AdminPrivate>}/>
             <Route path="*" element={<NotFound />} />          
         </Routes>     
 

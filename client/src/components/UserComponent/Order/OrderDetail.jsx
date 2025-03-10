@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react";
-import { getOrderById } from "@/Api/User/orderApi";
-import { message } from "antd";
+import { cancelSingleItem, getOrderById } from "@/Api/User/orderApi";
+import { message,Modal } from "antd";
 
 export default function OrderDetails() {
   const {orderId} = useParams();
@@ -33,6 +33,19 @@ export default function OrderDetails() {
     fetchOrder()
   },[orderId]);
 
+  // Confirmation dialog for deletion
+  const confirmDelete = (id) => {
+    Modal.confirm({
+      title: "Are you sure you want to cancel this Item?",
+      content: "This action cannot be undone.",
+      okText: "Yes",
+      cancelText: "No",
+      onOk() {
+        handleCancelItem(id);
+      },
+    });
+  };
+ 
   if (!order) return <p>Loading order details...</p>;
 
   
@@ -40,11 +53,15 @@ export default function OrderDetails() {
     const statusColors = {
       Delivered: "bg-green-500",
       Paid: "bg-green-500",
-      Pending: "bg-yellow-500",
-      Failed: "bg-red-500",
+      Pending: "bg-blue-300",
+      Processing:"bg-blue-500",
+      Cancelled:"bg-red-500"
     }
     return statusColors[status] || "bg-gray-500"
   }
+
+  // Calculate discount from the order totals
+  const discount = (order.subtotal + order.tax) - order.totalAmount;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
@@ -100,23 +117,32 @@ export default function OrderDetails() {
             </CardContent>
             </Card>
 
-            {/* Payment Info */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                    <CreditCard className="h-6 w-6 text-primary" />
+            <Card className="shadow-md rounded-xl border bg-white">
+              <CardContent className="p-6 flex flex-col gap-4">
+                {/* Payment Method Section */}
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
+                    <CreditCard className="h-7 w-7 text-indigo-600" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Payment Method</p>
-                    <p className="font-medium">{order.paymentMethod}</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`h-2 w-2 rounded-full ${getStatusColor(order.status)}`} />
-                      <span className="text-sm">{order.status}</span>
-                    </div>
+                  <div className="flex flex-col">
+                    <p className="text-sm text-gray-500">Payment Method</p>
+                    <p className="font-medium text-gray-900">{order.paymentMethod || "N/A"}</p>
                   </div>
                 </div>
-              </CardContent>
+
+                {/* Payment Status Section */}
+                <div className="flex justify-between items-center border-t pt-4">
+                  <p className="text-sm text-gray-500">Payment Status</p>
+                  <p className="text-sm font-bold">{order.paymentStatus}</p>
+                </div>
+            
+                {order.transactionId && (
+                  <div className="border-t pt-4">
+                    <p className="text-sm text-gray-500">Transaction ID</p>
+                    <p className="text-sm font-medium text-gray-900">{order.transactionId}</p>
+                  </div>
+                )}                    
+               </CardContent>
             </Card>
 
             {/* Order Summary */}
@@ -134,9 +160,10 @@ export default function OrderDetails() {
                       <span>₹{order.tax.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Total</span>
-                      <span>₹{order.totalAmount.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Discount</span>
+                      <span className="text-red-600">-₹{discount.toFixed(2)}</span>
                     </div>
+                    
                   </div>
                   <Separator />
                   <div className="flex justify-between font-medium">
@@ -148,42 +175,71 @@ export default function OrderDetails() {
             </Card>
           </div>
 
-          {/* Order Items */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Order Items</CardTitle>
-                <div className="flex items-center gap-2">
-                  <span className={`h-2 w-2 rounded-full ${getStatusColor(order.status)}`} />
-                  <span className="text-sm font-medium">{order.status}</span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="divide-y">
-                {order.items.map((item) => (
-                  <div key={item._id} className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center">
-                    <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg border">
-                      <img src={item.product.images[0] || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+          
+        {/* Order Items */}
+        <Card className="shadow-lg border rounded-md overflow-hidden">
+          <CardHeader className="bg-gray-50 p-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-800">
+                Order Items
+              </CardTitle>
+              {/* Additional header elements can go here */}
+            </div>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="divide-y">
+              {order.items.map((item) => (
+                <div
+                  key={item._id}
+                  className="flex flex-col sm:flex-row items-center gap-4 py-4"
+                >
+                  {/* Left Section: Product Image & Details */}
+                  <div className="flex flex-1 items-center gap-4">
+                    <div className="relative h-24 w-24 overflow-hidden rounded-md border">
+                      <img
+                        src={item.product.images[0] || "/placeholder.svg"}
+                        alt={item.product.name}
+                        className="object-cover h-full w-full"
+                      />
                     </div>
-                    <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="space-y-1">
-                        <h3 className="font-medium">{item.product.name}</h3>
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                          <p>Size: {item.size}</p>
-                          <p>Quantity: {item.quantity}</p>
-                          <p className="text-sm text-muted-foreground"> ₹{item.productPrice.toFixed(2)} each</p>
-                        </div>
-                      </div>
-                      <div className="mt-2 sm:mt-0 sm:text-right">
-                        <p className="font-medium"> ₹{(item.productPrice * item.quantity).toFixed(2)}</p>
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-medium text-gray-800">
+                        {item.product.name}
+                      </h3>
+                      <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                        <p>
+                          <span className="font-semibold">Size:</span> {item.size}
+                        </p>
+                        <p>
+                          <span className="font-semibold">Qty:</span> {item.quantity}
+                        </p>
+                        <p>
+                          <span className="font-semibold">Price:</span> ₹
+                          {item.productPrice.toFixed(2)} each
+                        </p>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+
+                  <div className="flex flex-col items-end gap-3">
+                    {/* Status */}
+                    <div className="flex flex-col items-end">
+                      <span className={`text-sm bg-gray-200 px-2 py-1 rounded-full ${getStatusColor(item.status)}`}>
+                        {item.status}
+                      </span>
+                    </div>
+
+                    {/* Total Price */}
+                    <p className="text-lg font-semibold text-gray-800">
+                      ₹{(item.productPrice * item.quantity).toFixed(2)}
+                    </p>
+                 
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
         </div>
       </div>
     </div>

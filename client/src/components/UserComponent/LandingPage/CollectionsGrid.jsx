@@ -21,7 +21,6 @@ const CollectionsSection = () => {
     const fetchCategories = async () => {
       try {
         const response = await getCategoriesToDisplay();
-        console.log("Fetched Categories:", response);
         setCategories(response.categories);
       } catch (error) {
         console.error("Error fetching categories:", error);

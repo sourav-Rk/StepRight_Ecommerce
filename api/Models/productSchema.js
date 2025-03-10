@@ -1,5 +1,7 @@
 
 import mongoose from "mongoose";
+import CategoryDB from "./categorySchema.js";
+
 
 const productSchema = new mongoose.Schema({
     name : {
@@ -50,6 +52,9 @@ const productSchema = new mongoose.Schema({
                 required : true,
                 min : [0, "Quantity cannot be negative"]
             },
+            salePrice :{
+                type : Number
+            },
         },
     ],
  },
@@ -63,6 +68,49 @@ const productSchema = new mongoose.Schema({
 productSchema.virtual('totalStock').get(function() {
     return this.variants.reduce((acc,variant) => acc+variant.quantity,0)
 });
+
+//pre-save hook to calculate the saleprice for each variant
+productSchema.pre('save',async function(next){
+    try{
+        const Category = mongoose.model('Category');
+        const categoryDoc = await CategoryDB.findById(this.category);
+        const categoryOffer = categoryDoc? categoryDoc.offer :0;
+        const productOffer = this.offer;
+
+        let discount = 0;
+        if(productOffer===0 && categoryOffer===0){
+            discount=0
+        }
+        else if(productOffer===0){
+            discount = categoryOffer;
+        }
+        else if(categoryOffer ===0){
+            discount = productOffer
+        }
+        else if (productOffer<categoryOffer){
+            discount = productOffer
+        }
+        else{
+            discount = categoryOffer
+        }
+
+        //update sale price for each variants
+        this.variants = this.variants.map(variant => {
+            if(variant.regularPrice){
+              const computedSalePrice = variant.regularPrice -(variant.regularPrice*discount/100);
+              variant.salePrice = Math.max(0,computedSalePrice);
+            }
+            return variant;
+        });
+        next()
+    }
+    catch(error){
+       next(error)
+    }
+
+})
+
+
 
 const ProductDB = mongoose.model("Product",productSchema);
 

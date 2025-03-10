@@ -3,15 +3,14 @@ import Header from "@/components/UserComponent/LandingPage/Header";
 import CategoryProduct from "@/components/UserComponent/Product/CategoryProduct";
 import React from "react";
 
-const ShoppingAllPage = () =>{
+const CategoryProductPage = () =>{
     return(
         <>
         <Header/>
-        <CategoryProduct
-        name={"Shop All"}/>
+        <CategoryProduct/>
         <Footer/>
         </>
     )
 }
 
-export default ShoppingAllPage
+export default CategoryProductPage

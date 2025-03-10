@@ -29,9 +29,28 @@ const orderSchema = new mongoose.Schema({
         required: true,
       },
       productPrice: { type: Number },
+
       size: { type: String },
+
       quantity: { type: Number },
+
       status: { type: String, default: "Pending" },
+
+      returnReason : {
+         type : String,
+      },
+
+      refundStatus: {
+        type: String,
+        enum: ["None", "Pending", "Approved", "Rejected"],
+        default: "None",
+      },
+      refundAmount : {
+        type : Number,
+      },
+      refundRequestedAt: {
+        type: Date,
+      },
     },
   ],
   status: {
@@ -53,7 +72,10 @@ const orderSchema = new mongoose.Schema({
   tax: {
      type: Number,
       required: true
-     },   
+     },
+  discountAmount :{
+    type : Number,
+  },      
   totalAmount: {
     type: Number,
     required: true,
@@ -62,6 +84,18 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  paymentStatus : {
+    type : String,
+    required : true,
+    default : "Pending"
+  },
+  transactionId : {
+    type : String, 
+  },
+  couponCode:{
+    type : String,
+    default : null
+  }
 }, {
   timestamps: true,
 });

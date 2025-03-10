@@ -1,6 +1,7 @@
 import cartDB from "../Models/cartSchema.js";
 import {refreshTokenDecoder} from "../utils/jwtToken/decodeRefreshToken.js"
-import { errorHandler } from "../utils/error.js";
+import { errorHandler } from "./error.js";
+import ProductDB from "../Models/productSchema.js";
 
 export const validateProduct = async(req, res, next) => {
     try{
@@ -20,10 +21,34 @@ export const validateProduct = async(req, res, next) => {
              if(!item?.product?.isActive){
                 return next(errorHandler(400,"some of your cart items is currently unavailable now"));
              }
-             else if(sizeObject.stock<item.quantity){
+             else if(sizeObject.quantity<item.quantity){
                 return next(errorHandler(400,"some of your cart products out of stock now"))
              }
         };
+        
+        for (const item of items) {
+            const product = await ProductDB.findOne(
+                { _id: item.product._id, "variants.size": item.size },
+                { "variants.$": 1 }
+            );
+
+            if (!product || product.variants.length === 0) {
+                return res.status(400).json({ message: `Product ${item.product.name} not found.` });
+            }
+
+            const availableQuantity = product.variants[0].quantity;
+
+            if (availableQuantity <= 0) {
+                return res.status(400).json({ message: `Product ${item.product.name} is out of stock.` });
+            }
+
+            if (availableQuantity < item.quantity) {
+                return res.status(400).json({
+                    message: `Only ${availableQuantity} units of ${item.product.name} are available.`,
+                });
+            }
+        }
+
 
         req.userId = userId;
 

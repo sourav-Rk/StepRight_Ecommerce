@@ -17,7 +17,7 @@ const axiosInstance = axios.create({
 });
 
 
-// Axios interceptor to handle blocked user (403)
+// interceptor to handle blocked user 
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -28,10 +28,10 @@ axiosInstance.interceptors.response.use(
     }
     
     if (error.response && error.response.status === 403) {
-      // Dispatch logout action to clear Redux state
+     
       store.dispatch(UserLogout());
       message.error("Your account has been blocked. Redirecting to login...");
-      // Redirect to login page (this will cause a full page reload)
+      
       window.location.href = "/login";
     }
     return Promise.reject(error);

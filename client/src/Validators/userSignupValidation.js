@@ -62,7 +62,7 @@ const userSchema = Joi.object({
       "any.only": "Confirm password must match the password.",
       "string.empty": "Confirm password is required."
     })
-});
+}).unknown(true);
 
 //validate user login
 const loginSchema = Joi.object({
@@ -117,7 +117,7 @@ const profileEditSchema = Joi.object({
       "string.pattern.base": "Phone number must be at least 10 digits.",
       "string.empty": "Phone number is required."
     }),
-});
+}).unknown(true);
 
 //profile edit validator
 export const validateProfile = (data) =>{

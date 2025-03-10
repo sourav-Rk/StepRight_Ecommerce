@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
-export default function OrderSuccessPage({ orderDetails }) {
+export default function OrderSuccessPage({ orderDetails, discountAmount }) {
+
     const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
@@ -69,7 +70,10 @@ export default function OrderSuccessPage({ orderDetails }) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Status:</span>
-                    <span className="font-medium">{orderDetails.status}</span>
+                    <span className={`font-medium ${orderDetails.paymentStatus.toLowerCase() === "paid" ? "text-green-600" : "text-red-600"}`}>
+                      {orderDetails.paymentStatus}
+                    </span>
+                    <span className="text-gray-600">{orderDetails.transactionId}</span>
                   </div>
                 </div>
               </div>
@@ -80,6 +84,10 @@ export default function OrderSuccessPage({ orderDetails }) {
                 <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal:</span>
                 <span className="font-medium">₹{orderDetails.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Discount:</span>
+                <span className="font-medium">₹{discountAmount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tax:</span>

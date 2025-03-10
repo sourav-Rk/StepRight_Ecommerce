@@ -16,6 +16,7 @@ export const signupUser = async (userData) =>{
     try{
         const response = await axiosInstance.post('/users/signup',userData);
         return response.data;
+        console.log("userrespoonse:",response)
     }
     catch(error){
         if(!error.response){
@@ -75,9 +76,9 @@ export const forgotVerifyOtp = async({email, otp}) =>{
 }
 
 //api call to change password
-export const forgotChangePassword = async({email,newPassword}) =>{
+export const forgotChangePassword = async({email,newPassword,confirmPassword}) =>{
     try{
-        const response = await axiosInstance.patch("/users/forgot/change-password",{email,newPassword});
+        const response = await axiosInstance.patch("/users/forgot/change-password",{email,newPassword,confirmPassword});
         return response.data
     }
     catch(error){

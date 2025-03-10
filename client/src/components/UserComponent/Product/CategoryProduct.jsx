@@ -1,105 +1,173 @@
 import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
-import { useNavigate, useParams  } from "react-router-dom";
-import { getProducts, getProductsByCategory } from "@/Api/User/productApi";
-//import { getHighTop, getProducts, getProductsByCategory, getRunningShoe, getSneaker } from "@/Api/User/productApi";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { advancedSearch } from "@/Api/User/productApi";
+import { ChevronDown } from "lucide-react";
+import { message } from "antd";
+import SearchBar from "./SearchBar";
+import FilterPanel from "./FilterPanel";
+import Filter from "./Filter";
 
 const CategoryProduct = () => {
-  const {categoryId} = useParams();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [categoryName, setCategoryName] = useState(name || "Shop All");
-
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const productsPerPage = 6;
+  const { categoryId } = useParams();
   const navigate = useNavigate();
-  
 
-  // Function to fetch products based on category id
-  const fetchProducts = async () => {
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [categoryName, setCategoryName] = useState("Shop All");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 6;
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [sortBy, setSortBy] = useState("newArrivals");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showFilter, setShowFilter] = useState(false);
+
+  // Read parameters from URL
+  useEffect(() => {
+    const sortByParam = searchParams.get("sortBy") || "newArrivals";
+    const pageParam = parseInt(searchParams.get("page")) || 1;
+    const searchParam = searchParams.get("search") || "";
+    setSortBy(sortByParam);
+    setCurrentPage(pageParam);
+    setSearchTerm(searchParam); // Sync searchTerm with URL
+  }, [searchParams]);
+
+  const fetchAdvancedProducts = async () => {
     setLoading(true);
     try {
+      const categoriesParam = searchParams.get("categories");
+      const brandsParam = searchParams.get("brands");
+      const pageParam = parseInt(searchParams.get("page")) || 1;
+      const searchParam = searchParams.get("search") || "";
+      const limit = productsPerPage;
 
-      const response = await getProductsByCategory(categoryId, currentPage, productsPerPage);
-      console.log(response)
-      setCategoryName(response.products[0].category.name)
-      setProducts(response.products);
-      setTotalPages(response.totalPages);
+      const response = await advancedSearch({
+        sortBy,
+        page: pageParam,
+        limit,
+        categoryId,
+        categories: categoriesParam,
+        brands: brandsParam,
+        name: searchParam, // Include search term in API call
+      });
 
+      if (response.products.length > 0 && response.products[0].category) {
+        setCategoryName(response.products[0].category);
+      }
+
+      setAllProducts(response.products);
+      setTotalPages(response.totalPages || 1);
     } catch (error) {
-      console.error("Failed to fetch products:", error);
+      console.log("Failed to fetch products", error);
+      message.error(error?.message);
     } finally {
       setLoading(false);
     }
   };
 
-  //function to fetch all products
-  const fetchAllProducts = async() =>{
-    setLoading(true);
-    try{
-      const response = await getProducts(currentPage, productsPerPage);
-      setProducts(response.products);
-      setTotalPages(response.totalPages);
-    }
-    catch (error) {
-      console.error("Failed to fetch products:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // Fetch products when params change
   useEffect(() => {
-    if (categoryId) {
-      fetchProducts();
-    }
-    else{
-      fetchAllProducts();
-    }
-  }, [categoryId, currentPage]);
+    fetchAdvancedProducts();
+  }, [categoryId, searchParams]);   
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const updateQueryParams = (paramsObj) => {
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(paramsObj).forEach(([key, value]) => {
+      if (value) {
+        newParams.set(key, value);
+      } else {
+        newParams.delete(key);
+      }
+    });
+    setSearchParams(newParams);
+  };
+
+  // Handlers
+  const handleSortChange = (e) => {
+    const newSortBy = e.target.value;
+    setSortBy(newSortBy);
+    updateQueryParams({ sortBy: newSortBy, page: 1 });
+  };
+
+  const handleSearchChange = (e) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    updateQueryParams({ search: newSearchTerm, page: 1 });
+  };
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    updateQueryParams({ page: pageNumber });
+  };
+
+  // Filter Panel Apply Handler
+  const handleApplyFilters = (filters) => {
+    const params = {
+      categories: filters.categories?.join(",") || "",
+      brands: filters.brands?.join(",") || "",
+      sortBy: filters.sortBy,
+    };
+    updateQueryParams(params);
+    setShowFilter(false);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Page Title */}
-      <h1 className="text-3xl font-bold mb-6">{categoryName}</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        {categoryId ? categoryName : "Shop All"}
+      </h1>
 
-      {/* Filters and Sorting */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-4">
-          <select className="px-4 py-2 bg-gray-200 rounded-md">
-            <option>Sort by: Best selling</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-          </select>
-        </div>
-        <span className="text-gray-600">{products.length} products</span>
-      </div>
+      <SearchBar
+        searchTerm={searchTerm}
+        handleSearchChange={handleSearchChange}
+      />
 
-      {/* Loading State */}
+      <button
+        onClick={() => setShowFilter(true)}
+        className="px-4 mb-2 py-2 bg-black text-white rounded-md"
+      >
+        Open Filters
+      </button>
+       
+       {!categoryId ?(
+        <FilterPanel
+        isOpen={showFilter}
+        onClose={() => setShowFilter(false)}
+        onApply={handleApplyFilters}
+      />
+       ):(
+        <Filter
+          isOpen={showFilter}
+          onClose={()=> setShowFilter(false)}
+          onApply={handleApplyFilters}
+        />
+       )}
+      
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <span className="text-gray-600">Loading...</span>
         </div>
       ) : (
         <>
-          {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
+            {allProducts.map((product) => (
               <div
                 key={product._id}
                 onClick={() => navigate(`/product-detail/${product._id}`)}
                 className="cursor-pointer"
               >
                 <ProductCard
+                  id={product._id}
                   name={product.name}
                   rating={4.5}
                   regularPrice={product.variants[0].regularPrice}
-                  salePrice={product.variants[0].regularPrice + 500}
+                  salePrice={product.variants[0].salePrice}
                   imageUrl={product.images[0]}
                   variants={product.variants}
                 />
@@ -107,8 +175,6 @@ const CategoryProduct = () => {
             ))}
           </div>
 
-
-          {/* Pagination */}
           <div className="flex justify-center mt-8">
             {Array.from({ length: totalPages }, (_, i) => (
               <button

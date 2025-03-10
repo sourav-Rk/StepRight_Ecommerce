@@ -1,8 +1,9 @@
     //Models
     import usersDB from "../../Models/userSchema.js";
+    import { errorHandler } from "../../Middleware/error.js";
 
     //fetch user details
-    export const getUsers = async(req,res) =>{
+    export const getUsers = async(req,res, next) =>{
         try{
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 5;
@@ -21,13 +22,13 @@
                 });
         }
         catch(error){
-            return res.status(500).json({message :"Something went wrong! please try again later"});
+            return next(errorHandler(500,"something wenet wrong! please try again"))
         }
     }
 
 
     //block or unblock users
-    export const blockUser = async(req,res) =>{
+    export const blockUser = async(req,res, next) =>{
         
         try{
             const userId = req.params.id;
@@ -35,7 +36,7 @@
             const user = await usersDB.findById(userId);
 
             if(!user){
-                return res.send(404).json({message :"User not found"});
+                return next(errorHandler(404,"User not found"));  
             }
 
             user.isBlocked = !user.isBlocked;
@@ -46,6 +47,7 @@
 
         }
         catch(error){
+            return next(errorHandler(500,"something went wron"))
             res.status(500).json({message : "Something went wrong", error : error.message});
         }
     }

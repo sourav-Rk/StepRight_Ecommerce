@@ -25,8 +25,6 @@ app.use('/api/users', UserRoute)
 app.use('/api/admin', AdminRoute)
 
 app.use((err, req, res, next) => {
-  console.error("Error: ", err.message); // Log error for debugging
-
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
 

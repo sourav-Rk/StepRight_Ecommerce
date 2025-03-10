@@ -4,13 +4,18 @@ const router = express.Router();
 import { forgotChangePassword, forgotVerifyEmail, forgotVerifyOtp, generateAndSendOTP,googleAuth,logout,resendOTP,verifyLogin,verifyOTPAndCreateUser } from '../controllers/UserController/authController.js';
 import { verifyUser } from '../Middleware/userAuthMiddleware.js';
 import {verifyUserBlocked} from "../Middleware/userBlockMiddleware.js"
-import { getCategoryToDisplay, getProductDetails, getProducts, getProductsByCategory, getRelatedProducts, getSneakerProducts } from '../controllers/UserController/productController.js';
+import { getCategoryToDisplay, getProductDetails, getRelatedProducts, getSneakerProducts } from '../controllers/UserController/productController.js';
 import { editProfile, getUserProfile } from '../controllers/UserController/profileController.js';
 import { addAddress, deleteAddress, editAddress, getAddress, getAddresses, setDefaultAddress } from '../controllers/UserController/addressController.js';
 import { addToCart, getCartProducts, proceedToCheckout, removeCartItem, updateCartItemQuantity } from '../controllers/UserController/cartController.js';
 import { validateProduct } from '../Middleware/productCheckMiddleware.js';
-import { cancelOrder, getOrderById, getUserOrders, placeOrder } from '../controllers/UserController/orderController.js';
+import { cancelOrder, cancelSingleItem, getOrderById, getOrderByItemId, getUserOrders, placeOrder, returnItem } from '../controllers/UserController/orderController.js';
 import { advancedSearchProducts } from '../controllers/UserController/advancedSearchController.js';
+import { addToWishlist, getWishlist, removeFromWishlist } from '../controllers/UserController/wishListController.js';
+import { makePayment, paymentVerification } from '../controllers/UserController/razorPayController.js';
+import { getCoupons } from '../controllers/UserController/couponController.js';
+import { addMoneyToWallet, deductWalletAmount, getWallet } from '../controllers/UserController/walletController.js';
+
 
 
 //Login and Signup Routes
@@ -26,12 +31,12 @@ router.post('/logout',logout); //logout
 
 //Product routes
 router.get('/products/sneakers',getSneakerProducts); // get the sneaker products to display in the home page
-router.get('/products/shopall', getProducts); //get all products
+router.get('/products/shopall', advancedSearchProducts); //get all products
 router.get('/categories',getCategoryToDisplay); //get the products based on the category
-router.get('/category/:categoryId', getProductsByCategory); //get products by category 
+router.get('/category/:categoryId', advancedSearchProducts); //get products by category 
 router.get('/products/related',getRelatedProducts); //get related products
 router.get('/products/:id',getProductDetails); // get the product detail 
-router.get('/advancedSearch',advancedSearchProducts);
+router.get('/advancedSearch',advancedSearchProducts); //advanced search
 
 //profile routes
 router.get('/profile',verifyUser,verifyUserBlocked,getUserProfile) //get user details
@@ -54,9 +59,29 @@ router.get('/proceedToCheckout',verifyUser, verifyUserBlocked, proceedToCheckout
 
 
 //orders
-router.post('/orders',verifyUser,verifyUserBlocked, validateProduct,placeOrder);
-router.get('/orders',verifyUser, verifyUserBlocked, getUserOrders);
-router.get('/orders/:orderId',verifyUser, verifyUserBlocked , getOrderById);
-router.patch('/orders/:orderId/cancel', verifyUser, verifyUserBlocked,cancelOrder);
+router.post('/orders',verifyUser,verifyUserBlocked, validateProduct,placeOrder); //to place the order
+router.get('/orders',verifyUser, verifyUserBlocked, getUserOrders); // to get orders made by the user
+router.get('/orders/:orderId', getOrderById); // to get a order by its id
+router.patch('/orders/:orderId/cancel', verifyUser, verifyUserBlocked,cancelOrder); //to cancel the whole order
+router.get('/orders/:orderId/item/:itemId',verifyUser, verifyUserBlocked, getOrderByItemId); //to get the details of an item in the order
+router.patch('/orders/:orderId/item/:itemId/cancel', verifyUser, verifyUserBlocked, cancelSingleItem); // to cancel a single item in the order
+router.patch('/orders/:orderId/item/:itemId/return',verifyUser,verifyUserBlocked,returnItem); // to return a item 
+
+//razorpay
+router.post('/makePayment',verifyUser,verifyUserBlocked,makePayment) // to make the payment in the razorpay
+router.post('/verifyPayment',verifyUser,verifyUserBlocked,paymentVerification) // to verify the payment
+
+//wishlist
+router.get('/wishlist', verifyUser, verifyUserBlocked, getWishlist); //to get the wishlist of the user
+router.post('/wishlist/add',verifyUser, verifyUserBlocked, addToWishlist); // to add items to the wishlist
+router.post('/wishlist/remove',verifyUser, verifyUserBlocked, removeFromWishlist); // to remove item from the wishlist
+
+//coupon
+router.get('/coupons',verifyUser, verifyUserBlocked,getCoupons);
+
+//wallet
+router.get('/wallet',verifyUser, verifyUserBlocked,getWallet); //to get the wallet
+router.patch('/wallet',verifyUser, verifyUserBlocked,addMoneyToWallet); // to add money to the wallet
+router.patch('/wallet/deduct',verifyUser,verifyUserBlocked,deductWalletAmount); // to deduct the money
 
 export default router;

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link,useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ export default function Signup() {
     phone: "",
     password: "",
     confirmPassword: "",
+    referredBy: "", 
   });
 
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,20 @@ export default function Signup() {
   const [serverError,setServerError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  //to extract referal codw from the url
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const referralCode = queryParams.get('ref');
+    console.log("refer:",referralCode)
+    if(referralCode){
+      setFormData((prevData) => ({
+        ...prevData,
+        referredBy : referralCode,
+      }))
+    }
+  },[location.search]);
 
   const inputChange = (e) => {
     setFormData({

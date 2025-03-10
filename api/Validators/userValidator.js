@@ -42,7 +42,7 @@ const userSchema = Joi.object({
         }),
 
     password: Joi.string()
-        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/) // Strong password
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/) 
         .required()
         .messages({
             'string.pattern.base': 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.',
@@ -56,7 +56,8 @@ const userSchema = Joi.object({
             'any.only': 'Confirm password must match the password.',
             'string.empty': 'Confirm password is required.'
         }),
-});
+        referredBy: Joi.string().allow("").optional()
+}).unknown(true);
 
 // Validation function
 export const validateUser = (data) => {
@@ -83,7 +84,7 @@ export const validateProfileUpdate = (data) => {
       .messages({
         "string.empty": "Phone number is required",
         "string.pattern.base": "Phone number must be exactly 10 digits"
-      }),
+      }).unknown(true),
   });
 
 };

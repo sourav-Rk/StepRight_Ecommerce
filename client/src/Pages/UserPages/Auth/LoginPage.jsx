@@ -144,7 +144,10 @@ export default function LoginPage() {
                 >
                   Log in
                 </Button>
-                <p onClick={()=>navigate("/forgot/verifyEmail")} className="font-medium text-black hover:text-gray-800 cursor-pointer"> Forgot Password </p>
+                <p onClick={()=>navigate("/forgot/verifyEmail")}
+                 className="font-medium text-black hover:text-gray-800 text-center mt-3 font-serif cursor-pointer"> 
+                 Forgot Password 
+                 </p>
               </div>
             </form>
 
@@ -158,7 +161,7 @@ export default function LoginPage() {
                 onClick={() => navigate("/signup")}
                 className="font-medium text-black hover:text-gray-800 cursor-pointer"
               >
-                Dont have an accout ? Sign up
+                Don't have an Account ? Sign up
               </p>
              
             </div>

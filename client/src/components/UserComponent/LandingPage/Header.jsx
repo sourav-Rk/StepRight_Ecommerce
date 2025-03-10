@@ -33,7 +33,6 @@ const Header = () => {
     const fetchCategories = async() =>{
       try{
         const response = await getCategoriesToDisplay();
-        console.log("sdfgjas",response)
         setCategories(response.categories);
       }
       catch(error){
@@ -56,12 +55,15 @@ const Header = () => {
   };
 
   //function to handle navigation when clicking the wishlist and cart button
-  const handleProtectedNavigation = () => {
+  const handleProtectedNavigation = (id) => {
      if(!isLoggedIn){
        message.error("You are not logged in . Please login to continue");
        setTimeout(() =>{
         navigate("/login")
        },500) 
+     }
+     else if(id){
+      navigate("/wishlist")
      }
      else{
       navigate("/cart")
@@ -129,7 +131,7 @@ const Header = () => {
         {/* Icons & Mobile Menu Toggle */}
         <div className="flex items-center space-x-4">
          
-          <button onClick={() => handleProtectedNavigation()} className="hover:text-gray-300">
+          <button onClick={() => handleProtectedNavigation("wish")} className="hover:text-gray-300">
             <Heart size={20} />
           </button>
           <button onClick={() => handleProtectedNavigation()} className="hover:text-gray-300">
@@ -200,7 +202,7 @@ const Header = () => {
             
             {categories.map((category) => (
             <button
-              key={category._id} // Use category_id as the key
+              key={category._id}
               onClick={() => handleNavigation(category._id)}
               className="hover:text-gray-300 text-left"
             >

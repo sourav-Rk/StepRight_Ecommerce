@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { addToWishlist, getWishlist, removeFromWishlist } from '@/Api/User/wishlistApi';
+import { message } from 'antd';
 
 const ProductCard = ({ 
+  id,
   name,
   rating,
   regularPrice,
@@ -12,7 +15,6 @@ const ProductCard = ({
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  
   //to check the product is out of stock or not
   const isOutOfStock = variants && variants.length > 0 ? variants.every((v) => Number(v.quantity) ===0 ) : false;
   
@@ -20,6 +22,45 @@ const ProductCard = ({
   const isLimitedStock = variants && variants.length > 0 
   ? variants.every((v) => Number(v.quantity) < 5 && Number(v.quantity) > 0)
   : false;
+
+    // Check wishlist status on component mount
+    useEffect(() => {
+      const checkWishlistStatus = async () => {
+        try {
+          const response = await getWishlist();
+          const wishlistItems = response?.wishlist?.products || [];
+          
+          const isProductInWishlist = wishlistItems.some(item => 
+            item?.productId?._id === id &&  
+            item?.size === (variants[0]?.size || '')
+          );
+          
+          setIsLiked(isProductInWishlist);
+        } catch (error) {
+          console.error("Error fetching wishlist:", error);
+          setIsLiked(false);
+        }
+      };
+    
+      checkWishlistStatus();
+    }, [id, variants]);
+
+  const handleWishlistToggle = async () => {
+    try {
+      if (!isLiked) {
+        const response = await addToWishlist(id, variants[0].size);
+        message.success(response.message);
+        setIsLiked(true); 
+      } else {
+        const response = await removeFromWishlist(id, variants[0].size);
+        message.success(response.message);
+        setIsLiked(false);
+      }
+    } catch (error) {
+      console.error("Wishlist error:", error);
+      message.error(error?.message || "Something went wrong!");
+    }
+  };
 
   // Generate stars based on rating
   const renderStars = () => {
@@ -45,6 +86,11 @@ const ProductCard = ({
     return stars;
   };
 
+  const discountPercent = 
+  regularPrice && salePrice && salePrice < regularPrice 
+    ? Math.round(((regularPrice - salePrice) / regularPrice) * 100)
+    : 0;
+
   return (
     <Card 
       className="relative w-96 rounded-sm overflow-hidden transform transition-all duration-300 hover:shadow-xl"
@@ -53,7 +99,11 @@ const ProductCard = ({
     >
       {/* Wishlist Button */}
       <button
-        onClick={() => setIsLiked(!isLiked)}
+        onClick={(event) => {
+          event.stopPropagation(); 
+          setIsLiked(!isLiked);
+          handleWishlistToggle(event)
+        }}
         className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm transition-transform hover:scale-110"
       >
         <Heart
@@ -62,6 +112,13 @@ const ProductCard = ({
           }`}
         />
       </button>
+
+         {/* Discount Badge - only show if discountPercent > 0 */}
+         {discountPercent > 0 && (
+        <div className="absolute top-3 left-3 z-10 bg-red-500 text-white px-3 py-1 text-sm font-bold rounded-full shadow-lg animate-bounce">
+          {discountPercent}% OFF
+        </div>
+      )}
 
       {/* Product Image */}
       <div className="relative overflow-hidden h-80">
@@ -104,15 +161,16 @@ const ProductCard = ({
 
         {/* Price */}
         <div className="flex items-center gap-2">
-          {salePrice > regularPrice && (
-            <span className="text-gray-950 line-through text-sm">
-            
-              ₹{salePrice}
-            </span>
-          )}
+
           <span className="text-xl font-bold text-gray-900">
-          ₹{regularPrice} 
+          ₹{salePrice} 
           </span>
+   
+          <span className="text-gray-950 line-through text-sm">
+            ₹{regularPrice}
+          </span>
+  
+       
         </div>
       </div>
     </Card>

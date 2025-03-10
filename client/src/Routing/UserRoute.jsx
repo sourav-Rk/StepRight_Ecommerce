@@ -1,6 +1,5 @@
 import React from "react";
 import { Routes ,Route } from "react-router-dom";
-import { useAuth } from "@/Redux/authSelector";
 
 import Signup from "@/Pages/UserPages/Auth/Signup.jsx";
 import OTPVerificationForm from "@/Pages/UserPages/Auth/OTPVerificationForm.jsx";
@@ -9,25 +8,29 @@ import ForgotPasswordPage from "@/Pages/UserPages/Auth/ForgotPassword/ForgotPass
 import PasswordReset from "@/Pages/UserPages/Auth/ForgotPassword/PasswordReset.jsx";
 import LandingPage from "@/Pages/UserPages/LandingPage/LandingPage.jsx";
 import UserLoginPrivate from "./ProtectedRouting/User/UserLoginPrivate";
-import SneakerPage from "@/Pages/UserPages/CategoryPages/SneakerPage";
-import HightTopPage from "@/Pages/UserPages/CategoryPages/HighTopPage";
-import RunningShoePage from "@/Pages/UserPages/CategoryPages/RunningShoePage";
-import ShoppingAllPage from "@/Pages/UserPages/CategoryPages/ShopAllPage";
+//import ShoppingAllPage from "@/Pages/UserPages/CategoryPages/ShopAllPage";
 import ProductDetailPage from "@/Pages/UserPages/CategoryPages/ProductDetailPage";
 import NotFound from "@/components/Common/NotFound";
 import AccountPage from "@/Pages/UserPages/AccountPage/AccountPage";
 import UserPrivate from "./ProtectedRouting/User/UserPrivate";
 import AddressPage from "@/Pages/UserPages/AddressPage/AddAddressPage";
-import AddressList from "@/components/UserComponent/Address/AddressList";
+//import AddressList from "@/components/UserComponent/Address/AddressList";
 import AddressListPage from "@/Pages/UserPages/AddressPage/AddressListPage";
-import ShoppingCart from "@/components/UserComponent/Cart/Cart";
+//import ShoppingCart from "@/components/UserComponent/Cart/Cart";
 import CartPage from "@/Pages/UserPages/CartPage/CartPage";
 import CheckOutPage from "@/Pages/UserPages/CheckOutPage/CheckOutPage";
-import OrderSuccessPage from "@/components/UserComponent/Order/OrderSuccessPage";
-import UserOrders from "@/components/UserComponent/Order/UserOrders";
+//import OrderSuccessPage from "@/components/UserComponent/Order/OrderSuccessPage";
+//import UserOrders from "@/components/UserComponent/Order/UserOrders";
 import UserOrdersPage from "@/Pages/UserPages/UserOrders/UserOrdersPage";
-import OrderDetails from "@/components/UserComponent/Order/OrderDetail";
 import OrderDetailPage from "@/Pages/UserPages/UserOrders/OrderDetail";
+import CategoryProductPage from "@/Pages/UserPages/CategoryPages/CategoryProductPage";
+import ItemOrderDetails from "@/components/UserComponent/Order/ItemOrderDetails";
+import ItemDetailPage from "@/Pages/UserPages/UserOrders/ItemDetailPage";
+import Wishlist from "@/components/UserComponent/WishList/WishList";
+import WishlistPage from "@/Pages/UserPages/WishlistPage/WishlistPage";
+import WalletComponent from "@/components/UserComponent/Wallet/Wallet";
+import WalletPage from "@/Pages/UserPages/WalletPage/WalletPage";
+import Invoice from "@/components/UserComponent/Order/Invoice";
 
 
 
@@ -44,10 +47,8 @@ const UserRoute = () => {
             <Route path="/reset-password" element={<PasswordReset />}/>
 
             <Route path="/" element={<LandingPage/>}/>
-            <Route path="/sneakers" element={<SneakerPage/>}/>
-            <Route path="/high-tops" element={<HightTopPage/>}/>
-            <Route path="/category/:categoryId" element={<RunningShoePage/>}/>
-            <Route path="/shop-all" element={<ShoppingAllPage/>}/>
+            <Route path="/category/:categoryId" element={<CategoryProductPage/>}/>
+            <Route path="/shop-all" element={<CategoryProductPage/>}/>
             <Route path="/product-detail/:id" element={<ProductDetailPage/>}/>
 
             <Route path="/account" element={<UserPrivate><AccountPage/></UserPrivate>} />
@@ -59,7 +60,12 @@ const UserRoute = () => {
             <Route path="/checkout" element={<UserPrivate><CheckOutPage/></UserPrivate>} />
             <Route path="/orders" element={<UserPrivate><UserOrdersPage/></UserPrivate>}/>
             <Route path="/orders/:orderId" element={<UserPrivate><OrderDetailPage/></UserPrivate>} />
+            <Route path="/orders/:orderId/item/:itemId" element={<UserPrivate><ItemDetailPage/></UserPrivate>} />
+            <Route path="/orders/invoice/:orderId" element={<Invoice/>}/>
+            
+            <Route path="/wishlist" element={<UserPrivate><WishlistPage/></UserPrivate>}/>
 
+            <Route path="/wallet" element={<UserPrivate><WalletPage/></UserPrivate>} />
             <Route path="*" element={<NotFound />} />
             
         </Routes>

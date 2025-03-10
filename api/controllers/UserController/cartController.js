@@ -1,7 +1,8 @@
 import ProductDB from "../../Models/productSchema.js";
 import cartDB from "../../Models/cartSchema.js";
 import { refreshTokenDecoder } from "../../utils/jwtToken/decodeRefreshToken.js";
-import { errorHandler } from "../../utils/error.js";
+import { errorHandler } from "../../Middleware/error.js";
+import wishListDB from "../../Models/wishListSchema.js";
 
 //to add items to the cart
 export const addToCart = async(req, res, next) => {
@@ -49,10 +50,18 @@ export const addToCart = async(req, res, next) => {
            
         }
         else{
-            cart.items.push({product: productId, size, quantity :1, price : variant.regularPrice});
+            cart.items.push({product: productId, size, quantity :1, price : variant.salePrice});
         }
 
         await cart.save();
+
+        await wishListDB.updateOne(
+            {user : userId},
+            {$pull : {products : {productId , size}}}
+        );
+
+
+      
 
         return res.status(200).json({message : "Product added to cart successfully"});
          
@@ -142,6 +151,7 @@ export const addToCart = async(req, res, next) => {
             item.quantity = newQuantity;
             await cart.save();
 
+         
             return res.status(200).json({message : "Cart item updated successfully"});
 
         }

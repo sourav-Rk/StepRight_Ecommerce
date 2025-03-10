@@ -33,7 +33,7 @@ const handleRefreshToken = async(req, res, next, refreshToken) =>{
             const newAccessToken = jwt.sign({id : decodeRefresh?.id, role : decodeRefresh.role}, process.env.ACCESS_TOKEN_SECRET, {expiresIn : "15m"});
 
             res.cookie("adminAccessToken",newAccessToken,{
-                httpOnly : false,
+                httpOnly : true,
                 secure   : false,
                 sameSite : "Lax",
                 maxAge   : 1 * 60 * 1000,

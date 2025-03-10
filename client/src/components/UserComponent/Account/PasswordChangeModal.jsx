@@ -43,7 +43,6 @@ const PasswordChangeModal = ({ isOpen, onClose, email}) => {
       setError('Password must be at least 8 characters long');
       return;
     }
-    
     if (formData.newPassword !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -51,15 +50,15 @@ const PasswordChangeModal = ({ isOpen, onClose, email}) => {
 
     setIsLoading(true);
     try {
-    
-        const response = await forgotChangePassword({email, newPassword: formData.newPassword} );
+        const response = await forgotChangePassword({email, newPassword: formData.newPassword, confirmPassword : formData.confirmPassword} );
         message.success(response.message)
         setError("")
         setServerError("")
-        setFormData({})
+        setFormData({ newPassword: '', confirmPassword: '' });
         onClose();
     } catch (error) {
-      setServerError(error?.message || "Failed to change the password")
+      console.log(error)
+      setServerError(error || "Failed to change the password")
       
     } finally {
       setIsLoading(false);

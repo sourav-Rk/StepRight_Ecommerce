@@ -13,7 +13,9 @@
     import { uploadImages} from "../controllers/AdminController/imageUploadController.js"
     import { upload } from "../Cloudinary/cloudinary.js";
     import { addSize, blockSize, getSizes, getSizesForProduct } from "../controllers/AdminController/sizeController.js";
-import { getAllOrders, updateOrderStatus } from "../controllers/AdminController/orderController.js";
+    import { getAllOrders, getOrderById, updateOrderStatus, updateRefundStatus, updateSingleOrderItemStatus } from "../controllers/AdminController/orderController.js";
+    import { blockCoupon, createCoupon, getCoupons } from "../controllers/AdminController/couponController.js";
+import getSalesReport, { downloadSalesReportExcel, downloadSalesReportPDF } from "../controllers/AdminController/salesReportController.js";
 
     //Login
     router.post("/login", verifyLogin);
@@ -52,14 +54,27 @@ import { getAllOrders, updateOrderStatus } from "../controllers/AdminController/
     router.put('/block-size/:id', verifyAdmin, blockSize);   
     
     //orders
-    router.get('/orders',verifyAdmin,getAllOrders);
-    router.patch('/orders/:orderId', verifyAdmin, updateOrderStatus)
+    router.get('/orders',verifyAdmin, getAllOrders);
+    router.get('/orders/:orderId',verifyAdmin , getOrderById); // to get a order by its id
+    //router.patch('/orders/:orderId', verifyAdmin, updateOrderStatus);
+    router.patch('/orders/:orderId/item/:itemId',verifyAdmin,updateSingleOrderItemStatus);
+    router.patch('/orders/:orderId/item/:itemId/refundStatus',verifyAdmin,updateRefundStatus);
 
+
+    //coupon
+    router.get('/coupon',verifyAdmin,getCoupons); // to get the coupons
+    router.post('/coupon',verifyAdmin,createCoupon); // to add the coupon
+    router.put('/coupon/:id', verifyAdmin, blockCoupon); //to block or unblock the coupon
+    
+    //sales report
+    router.get('/sales-report',verifyAdmin,getSalesReport);
+    router.get('/sales-report/download/pdf',verifyAdmin,downloadSalesReportPDF);
+    router.get('/sales-report/download/excel',verifyAdmin,downloadSalesReportExcel);
+    
     //upload images
     router.post('/upload', (req, res, next) => {
         upload.array("images")(req, res, (err) => {
           if (err) {
-            // Multer error occurred (for example, wrong file type)
             return res.status(400).json({ message: err.message });
           }
           next();

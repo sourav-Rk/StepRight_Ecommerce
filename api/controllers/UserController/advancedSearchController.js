@@ -1,136 +1,165 @@
+import mongoose from "mongoose";
 import ProductDB from "../../Models/productSchema.js";
+import { errorHandler } from "../../Middleware/error.js";
 
-import { errorHandler } from "../../utils/error.js";
+export const advancedSearchProducts = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
 
-export const advancedSearchProducts = async(req, res, next) => {
-    try{
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 6;
-        const skip = (page-1) * limit;
+    // Sorting
+    const sortBy = req.query.sortBy || "newArrivals";
+    let sortStage = {};
 
-        //sorting
-        const sortBy = req.query.sortBy || "newArrivals";
-        let sortStage = {};
-
-        switch(sortBy){
-            case "popularity":
-                sortStage = {createdAt : -1}
-                break;
-            case "priceLowToHigh" :
-                sortStage ={"variants.regularPrice" : 1};
-                break;
-            case "priceHighToLow" :
-                sortStage={"variants.regularPrice" : -1}   
-                break;
-            case "featured" :
-                sortStage = {createdAt:-1}
-                break;
-            case "newArrival" :
-                sortStage ={createdAt : -1}
-                break
-            case "aToz":
-                sortStage={name : 1}
-                break;
-            case "ztoA" :
-                sortStage ={name : -1}
-                break;
-            default : 
-            sortStage ={createdAt : -1211}            
-                         
-        }
-        const pipeLine = [
-            // lookup categoryy and brand details
-            {
-                $lookup : {
-                    from : "categories",
-                    localField :"category",
-                    foreignField : "_id",
-                    as : "categoryDetails"
-                }
-            },
-            {
-                $lookup : {
-                    from : "brands",
-                    localField : "brand",
-                    foreignField : "_id",
-                    as : "brandDetails"
-                }
-            },
-            {$unwind : "$categoryDetails"},
-            {$unwind : "$brandDetails"},
-            
-            //match active products and apply sort
-            {
-                $match : {
-                    "categoryDetails.isActive" : true,
-                    "brandDetails.isActive" : true,
-                    isActive : true,
-                },
-            },
-            {$sory : sortStage},
-            {$skip : skip},
-            {$limit : limit},
-
-            //project the fields
-            {
-                $project: {
-                    name: 1,
-                    description: 1,
-                    category: { name: 1, isActive: 1 },
-                    brand: { name: 1, isActive: 1 },
-                    offer: 1,
-                    images: 1,
-                    isActive: 1,
-                    variants: 1,
-                    totalStock: { $sum: "$variants.quantity" },
-                  },
-            }
-        ];
-
-        const products = await ProductDB.aggregate(pipeLine);
-
-        //count total matching documents
-        const countPipeLine = [
-            {
-                $lookup : {
-                    from : "categories",
-                    localField :"category",
-                    foreignField : "_id",
-                    as : "categoryDetails"
-                }
-            },
-            {
-                $lookup :{
-                    from : "brands",
-                    localFiels : "brand",
-                    foreignField : "_id",
-                    as : "brandDetails"
-                }
-            },
-            {$unwind : "$categoryDetails"},
-            {$unwind : "$brandDetails"},
-            {
-                $match : {
-                    "categoryDetails.isActive" : true,
-                    "brandDetails.isActive" : true,
-                    isActive : true
-                }
-            },
-            {$count : "total"},
-        ];
-
-        const totalProductResult = await ProductDB.aggregate(countPipeLine);
-        const total = totalProductResult[0]?.total || 0;
-
-        return res.status(200).json({
-            message : "Products fetched successfully",
-            products,
-            totalPages : Math.ceil(total/limit),
-            currentPage : page,
-        });
-    }catch(error) {
-        console.log("Error in advanced search products", error);
-        return next(errorHandler(500,"Something went wrong ! Please try again"));
+    switch (sortBy) {
+      case "popularity":
+        sortStage = { createdAt: -1 };
+        break;
+      case "priceLowToHigh":
+        sortStage = { minPrice: 1 };
+        break;
+      case "priceHighToLow":
+        sortStage = { minPrice: -1 };
+        break;
+      case "newArrivals":
+        sortStage = { createdAt: -1 };
+        break;
+      case "AtoZ":
+        sortStage = { name: 1 };
+        break;
+      case "ZtoA":
+        sortStage = { name: -1 };
+        break;
+      default:
+        sortStage = { createdAt: -1 };
     }
-};
 
+    let matchConditions = {
+      isActive: true,
+    };
+
+    if (req.query.categoryId) {
+      matchConditions.category = new mongoose.Types.ObjectId(
+        req.query.categoryId
+      );
+    } else if (req.query.categories) {
+      const categoryIds = req.query.categories
+        .split(",")
+        .map((id) => new mongoose.Types.ObjectId(id));
+      matchConditions.category = { $in: categoryIds };
+    }
+
+    // Apply brand filter using IDs
+    if (req.query.brands) {
+      const brandIds = req.query.brands
+        .split(",")
+        .map((id) => new mongoose.Types.ObjectId(id));
+      matchConditions.brand = { $in: brandIds };
+    }
+
+    if (req.query.name) {
+      matchConditions.name = { $regex: req.query.name, $options: "i" };
+    }
+
+    // Main Pipeline
+    const pipeLine = [
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brandDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" },
+      { $unwind: "$brandDetails" },
+      {
+        $match: {
+          ...matchConditions,
+          "categoryDetails.isActive": true,
+          "brandDetails.isActive": true,
+        },
+      },
+      {
+        $addFields: {
+          minPrice: { $min: "$variants.regularPrice" },
+        },
+      },
+      { $sort: sortStage },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          name: 1,
+          description: 1,
+          category: "$categoryDetails.name",
+          brand: "$brandDetails.name",
+          offer: 1,
+          images: 1,
+          isActive: 1,
+          variants: 1,
+          totalStock: { $sum: "$variants.quantity" },
+          minPrice: 1,
+          createdAt: 1,
+        },
+      },
+    ];
+
+    // Count Pipeline
+    const countPipeLine = [
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brandDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" },
+      { $unwind: "$brandDetails" },
+      {
+        $match: {
+          ...matchConditions,
+          "categoryDetails.isActive": true,
+          "brandDetails.isActive": true,
+        },
+      },
+      { $count: "total" },
+    ];
+
+    // Execute both pipelines
+    const [products, countResult] = await Promise.all([
+      ProductDB.aggregate(pipeLine),
+      ProductDB.aggregate(countPipeLine),
+    ]);
+
+    const total = countResult[0]?.total || 0;
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      products,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error("Error in advancedSearchProducts:", error);
+    next(errorHandler(500, "Something went wrong! Please try again"));
+  }
+};

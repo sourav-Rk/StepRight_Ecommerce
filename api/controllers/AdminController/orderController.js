@@ -1,5 +1,6 @@
 import orderDB from "../../Models/orderSchema.js";
-import { errorHandler } from "../../utils/error.js";
+import { errorHandler } from "../../Middleware/error.js";
+import walletDB from "../../Models/walletSchema.js";
 
 //to get all orders made by the user
 export const getAllOrders = async (req, res, next) =>{
@@ -19,6 +20,27 @@ export const getAllOrders = async (req, res, next) =>{
         return next(errorHandler(500,"something went wrong! Please try again"));
     }
 };
+
+//to get a order by its id
+export const getOrderById = async(req,res,next) => {
+  try{
+      const {orderId} = req.params;
+      const order = await orderDB.findOne({orderId}).populate({
+          path : "items.product",
+          populate : {path : 'category',select : 'name -_id'}
+      })
+      .populate("userId","firstName , email , phone");
+
+      if(!order) return next(errorHandler(404,"Order Not Found"));
+      
+      return res.status(200).json({order});
+  }
+  catch(error){
+      console.log(error)
+      return next(errorHandler(500,"something went wrong! please try again"));
+  }
+}
+
 
 //to change the status of the order
 export const updateOrderStatus = async (req,res,next) => {
@@ -59,3 +81,104 @@ export const updateOrderStatus = async (req,res,next) => {
     return next(errorHandler(500,"Something went wrong!Please try again"));
   }
 }
+
+//change the status of a single item in the order
+export const updateSingleOrderItemStatus = async(req, res, next) => {
+  try{
+    const {orderId, itemId} = req.params;
+    const{status : newStatus} = req.body;
+
+    if(!newStatus) return next(errorHandler(400,"Status is required"));
+
+    const allowedStatuses = ["Pending","Processing","Shipped","Delivered","Cancelled"];
+    if(!allowedStatuses.includes(newStatus)) return next(errorHandler(400,"Invalid status value"));
+
+    const order = await orderDB.findOne({orderId});
+    if(!order) return next(errorHandler(404,"Order not found"));
+
+    const item = order.items.id(itemId);
+    if(!item) return next(errorHandler(404,"Item not found"));
+
+    const allowedTransitions = {
+      Pending : ["Processing","Cancelled"],
+      Processing: ["Shipped","Cancelled"],
+      Shipped: ["Delivered"],
+      Delivered:[],
+      Cancelled : [],
+    }
+
+    if(!allowedTransitions[item.status].includes(newStatus)){
+      return next(errorHandler(400,`cannot change status from ${item.status} to ${newStatus}`))
+    }
+
+    item.status = newStatus;
+    await order.save();
+
+    return res.status(200).json({message : "Item status updated successfully"});
+  }
+  catch(error) {
+     return next(errorHandler(500,"Something went wrong! Please try again"));
+  }
+   
+}
+
+
+//to update refund status
+export const updateRefundStatus = async (req,res,next) =>{
+  try{
+    const {orderId,itemId} = req.params;
+    const newRefundStatus = "Approved";
+    if(!["Approved","Rejected"].includes(newRefundStatus)){
+      return next(errorHandler(400,"Invalid refund status"));
+    }
+
+    const order = await orderDB.findOne({orderId});
+    if(!order) return next(errorHandler(404,"Order not found"));
+
+    const item = order.items.id(itemId);
+    if(!item) return next(errorHandler(404,"order item not found"));
+
+    if(item.refundStatus !== "Pending") {
+      return next(errorHandler(400,"Refund request is not pending"));
+    };
+    
+    // Calculate the refund amount
+    const discountAmountDerived = order.subtotal + order.tax - order.totalAmount;
+    const effectiveDiscountRate = order.subtotal ? discountAmountDerived / order.subtotal : 0;
+    const refundAmount = Math.round(item.productPrice * item.quantity * (1 - effectiveDiscountRate))
+
+    item.refundStatus = newRefundStatus;
+    item.refundAmount = refundAmount;
+    await order.save();
+    
+    const walletUpdate = await walletDB.updateOne(
+      {userId : order.userId},
+      { 
+        $push: { transactions: { 
+          description: `Refund for order ${order.orderId}`, 
+          transactionDate: new Date(), 
+          transactionType: "Credit", 
+          transactionStatus: "Success", 
+          amount: refundAmount 
+        } },
+        $inc: { balance: refundAmount }
+      },
+      { upsert: true }
+    );
+    
+    
+    if (walletUpdate.modifiedCount === 0 && walletUpdate.upsertedCount === 0) {
+      return next(errorHandler(404, "Wallet not found"));
+    }
+
+
+    return res.status(200).json({
+      message : `Refund request ${newRefundStatus.toLowerCase()} successfully`
+    })
+    
+  }
+  catch(error){
+    console.log("Error updating refund status",error);
+    return next(errorHandler(500,"Something went wrong while updating refund status"));
+  }
+} 

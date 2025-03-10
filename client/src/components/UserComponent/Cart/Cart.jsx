@@ -191,6 +191,7 @@ const ShoppingCart = () => {
                     <Button 
                       onClick={() => navigate("/checkout")}
                       className="w-full mt-6 bg-black hover:bg-gray-800 text-white h-12 text-lg"
+                      disabled={cartItems.some(item => !item.product.isActive)}
                     >
                       Proceed to Checkout
                     </Button>

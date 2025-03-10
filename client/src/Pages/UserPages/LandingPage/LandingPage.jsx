@@ -4,7 +4,6 @@ import Banner from "@/components/UserComponent/LandingPage/Banner"
 import ProductGrid from "@/components/UserComponent/LandingPage/ProductGrid";
 import CollectionsGrid from "@/components/UserComponent/LandingPage/CollectionsGrid";
 import Footer from "@/components/UserComponent/LandingPage/Footer";
-import ProductCard from "@/components/UserComponent/Product/ProductCard";
 import ImageCarousel from "@/components/UserComponent/LandingPage/ImageCarousel";
 import BestSellingSneakers from "@/components/UserComponent/LandingPage/BestSellingSneakers";
 

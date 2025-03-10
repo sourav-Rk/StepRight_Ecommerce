@@ -6,21 +6,22 @@ import bcrypt from "bcrypt"
 //access tokens and refresh token generators
 import {generateAdminAccessToken} from "../../utils/jwtToken/accessToken.js"
 import {generateAdminRefreshToken} from "../../utils/jwtToken/refreshToken.js"
+import { errorHandler } from "../../Middleware/error.js";
 
-export const verifyLogin = async(req, res) => {
+export const verifyLogin = async(req, res, next) => {
     try{
         const {email, password} = req.body;
 
         const adminExist = await usersDB.findOne({email, role : "admin"});
 
         if(!adminExist){
-            return res.status(404).json({message : "Email doesnt exist!!"})
+           return next(errorHandler(404,"Email doesnt exist"))
         }
 
         const isPasswordCorrect = await bcrypt.compare(password,adminExist.password);
 
         if(!isPasswordCorrect){
-            return res.status(401).json({message : "Invalid credentials!"});
+            return next(errorHandler(401,"Invalid credentials"));
         }
 
         generateAdminAccessToken(res, adminExist);
@@ -31,7 +32,7 @@ export const verifyLogin = async(req, res) => {
         return res.status(200).json({message : "Logged in successfully",adminName})
     }
     catch(error){
-        return res.status(500).json({message : "something went wrong. Please try again!"})
+        return next(errorHandler(500,"something went wrong. Please try again"))
     }
 }
 

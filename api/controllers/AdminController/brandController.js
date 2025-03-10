@@ -1,4 +1,5 @@
 import BrandDB from "../../Models/brandSchema.js";
+import { errorHandler } from "../../Middleware/error.js";
 
 //get brand
 export const getBrand = async (req, res) =>{
@@ -87,7 +88,7 @@ export const blockBrand = async (req, res) =>{
 }
 
 //edit the brand
-export const editBrand = async (req, res) =>{
+export const editBrand = async (req, res, next) =>{
     try{
 
         const {id} = req.params;
@@ -95,12 +96,12 @@ export const editBrand = async (req, res) =>{
         const {name} = req.body;
 
         if(!name){
-            return res.status(400).json({message : "Name is required"});
+            return next(errorHandler(400,"Name is required"))
         }
 
         const nameRegex = /^[A-Za-z\s]+$/;
          if (!nameRegex.test(name)) {
-             return res.status(400).json({ message: "brand name must contain only alphabets and spaces" });
+            return next(errorHandler(400,"brand name must contain only alphabets and spaces"));
          }
  
          const existingBrand = await BrandDB.findOne({ 
@@ -108,7 +109,7 @@ export const editBrand = async (req, res) =>{
          });
 
          if(existingBrand){
-            return res.status(400).json({message : "Brand already exists"})
+            return next(errorHandler(400,"Brand already exists"));
          }
 
          const updateBrand = await BrandDB.findByIdAndUpdate(
@@ -118,7 +119,7 @@ export const editBrand = async (req, res) =>{
          );
 
          if(!updateBrand){
-            return res.status(404).json({message : "brand Not found"})
+            return next(errorHandler(404,"brand Not found"));
             }
 
         return res.status(200).json({
@@ -128,6 +129,6 @@ export const editBrand = async (req, res) =>{
     }
     
     catch(error){
-        return res.status(500).json({message : "internal server error"})
+        return next(errorHandler(500,"internal server error"));
     }          
 }

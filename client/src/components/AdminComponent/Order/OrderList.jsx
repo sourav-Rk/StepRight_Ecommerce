@@ -85,7 +85,7 @@ export default function OrderList() {
             <CardHeader className="border-b bg-white sticky top-0 z-10">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl font-bold">Orders</CardTitle>
-                <div className="flex gap-4">{/* Add any additional header actions here */}</div>
+                <div className="flex gap-4"></div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -97,10 +97,8 @@ export default function OrderList() {
                       <TableHead className="font-semibold">Order ID</TableHead>
                       <TableHead className="font-semibold">Customer</TableHead>
                       <TableHead className="font-semibold">Date</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
                       <TableHead className="font-semibold">Payment</TableHead>
-                      <TableHead className="font-semibold">Amount</TableHead>
-                      <TableHead className="font-semibold">Actions</TableHead>
+                      <TableHead className="font-semibold">Amount</TableHead>                
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -119,38 +117,10 @@ export default function OrderList() {
                           </div>
                         </TableCell>
                         <TableCell>{format(new Date(order.createdAt), "MMM dd, yyyy")}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
-                        </TableCell>
+                        
                         <TableCell className="uppercase font-medium">{order.paymentMethod}</TableCell>
                         <TableCell className="font-medium">₹{order.totalAmount.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <Select
-                            defaultValue={order.status}
-                            onValueChange={(value) => handleStatusChange(order.orderId, value)}
-                          >
-                            <SelectTrigger className="w-[130px]">
-                              <SelectValue placeholder="Change status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Pending" disabled={isOptionDisabled(order.status, "Pending")}>
-                                Pending
-                              </SelectItem>
-                              <SelectItem value="Processing" disabled={isOptionDisabled(order.status, "Processing")}>
-                                Processing
-                              </SelectItem>
-                              <SelectItem value="Shipped" disabled={isOptionDisabled(order.status, "Shipped")}>
-                                Shipped
-                              </SelectItem>
-                              <SelectItem value="Delivered" disabled={isOptionDisabled(order.status, "Delivered")}>
-                                Delivered
-                              </SelectItem>
-                              <SelectItem value="Cancelled" disabled={isOptionDisabled(order.status, "Cancelled")}>
-                                Cancelled
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
+                     
                       </TableRow>
                     ))}
                   </TableBody>

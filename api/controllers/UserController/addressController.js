@@ -1,6 +1,6 @@
 import addressDB from "../../Models/addressSchema.js";
 import { refreshTokenDecoder } from "../../utils/jwtToken/decodeRefreshToken.js";
-import {errorHandler} from "../../utils/error.js"
+import {errorHandler} from "../../Middleware/error.js"
 
 //to add address
 export const addAddress = async (req, res, next) => {

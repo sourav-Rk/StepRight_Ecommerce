@@ -1,7 +1,8 @@
 import CategoryDB from "../../Models/categorySchema.js";
+import { errorHandler } from "../../Middleware/error.js";
 
 //fetch category
-export const getCategory = async (req,res) =>{
+export const getCategory = async (req,res, next) =>{
     try{
          
         const page = parseInt(req.query.page) || 1;
@@ -20,23 +21,23 @@ export const getCategory = async (req,res) =>{
             });
     }
     catch(error){
-        return res.status(500).json({message : "internal server error"})
+        return next(errorHandler(500,"Internal server error"));
     }
 }
 
 //funcion to add category
-export const addCategory = async (req, res) =>{
+export const addCategory = async (req, res, next) =>{
     try{
         const {name, description} = req.body;
 
         if(!name || !description){
-            return res.status(400).json({message : "Name and description are required"});
+            return next(errorHandler(400,"Name and description are required"));
         }
         
         //to check the name contains only digit
         const nameRegex = /^[A-Za-z\s]+$/;
         if (!nameRegex.test(name)) {
-            return res.status(400).json({ message: "Category name must contain only alphabets and spaces" });
+            return next(errorHandler(400,"Category name must contain only alphabets and spaces"))
         }
 
         const existingCategory = await CategoryDB.findOne({ 
@@ -44,7 +45,7 @@ export const addCategory = async (req, res) =>{
         });
 
         if(existingCategory){
-            return res.status(400).json({message :"category already exists"})
+            return next(errorHandler(400,"category already exists"))
         }
 
         const newCategory = new CategoryDB({
@@ -59,15 +60,15 @@ export const addCategory = async (req, res) =>{
     }
     catch (error) {
         if (error.code === 11000) {
-            return res.status(400).json({ message: "Category already exists" });
+            return next(errorHandler(400,"Category already exists"))
         }
         console.log("error in adding category", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return next(errorHandler(500,"something went wrong!"))
     }
 }
 
 //unlist or list the category
-export const blockCategory = async(req, res) =>{
+export const blockCategory = async(req, res,next) =>{
     
     const categoryId = req.params.id;
 
@@ -85,20 +86,20 @@ export const blockCategory = async(req, res) =>{
         return res.status(200).json({message : `${category.name} has been ${category.isActive} ? "blocked" : "unblocked"`});
     }
     catch(error){
-        return res.status(500).json({message : "Internal server error . please try again" })
+        return next(errorHandler(500,"Internal server error! please try again"))
     }
 }
 
 //add offer
 
-export const addOffer = async(req, res) =>{
+export const addOffer = async(req, res,next) =>{
     try{
         const {id} = req.params;
         const {offer}= req.body;
         
         //validate the offer
         if(offer === null || isNaN(offer) || Number(offer)<0){
-            return res.status(401).json({message : "A valid, non-negative offer percentage is required"})
+            return next(errorHandler(401,"A valid, non-negative offer percentage is required"))
         }
 
         const updateCategory = await CategoryDB.findOneAndUpdate(
@@ -114,25 +115,25 @@ export const addOffer = async(req, res) =>{
     }
     catch(error){
         console.log("error updating offer",error);
-        return res.status(500).json({message : "Internal server error"});
+        return next(errorHandler(500,"Internal server error"))
     }
 }
 
 //Edit category
-export const editCategory = async(req,res) =>{
+export const editCategory = async(req,res, next) =>{
     try{
         const {id} = req.params;
         const {name, description} = req.body;
 
         
         if(!name || !description){
-            return res.status(400).json({message : "Name and description are required"});
+            return next(errorHandler(400,"Name and description are required"))
         }
         
         //to check the name contains only digit
         const nameRegex = /^[A-Za-z\s]+$/;
         if (!nameRegex.test(name)) {
-            return res.status(400).json({ message: "Category name must contain only alphabets and spaces" });
+            return next(errorHandler(400,"Category name must contain only alphabets and spaces"))
         }
 
         const existingCategory = await CategoryDB.findOne({ 
@@ -140,7 +141,7 @@ export const editCategory = async(req,res) =>{
         });
 
         if(existingCategory){
-            return res.status(400).json({message :"category already exists"})
+            return next(errorHandler(400,"category already exists"))
         }
 
 
@@ -160,7 +161,7 @@ export const editCategory = async(req,res) =>{
         })
     }
     catch(error){
-        return res.status(500).json({message : "internal server error"});
+        return next(errorHandler(500,"internal server error")) 
     }
 }
 

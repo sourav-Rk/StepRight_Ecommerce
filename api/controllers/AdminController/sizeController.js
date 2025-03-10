@@ -1,12 +1,13 @@
 import SizeDB from "../../Models/sizeSchema.js";
+import { errorHandler } from "../../Middleware/error.js";
 
 //Add size
-export const addSize = async (req, res) =>{
+export const addSize = async (req, res,next) =>{
     try{
         const {size} = req.body;
         
         if(!size || size.trim() === ""){
-            return res.status(400).json({message : "Size name is required"});
+            return next(errorHandler(400,"Size name is required"))
         }
 
         const existingSize = await SizeDB.findOne({
@@ -14,7 +15,7 @@ export const addSize = async (req, res) =>{
         });
 
         if(existingSize){
-            return res.status(400).json({message : "Size already exists"});
+            return next(errorHandler(400,"Size already exists"))
         }
 
         const newSize = new SizeDB({size : size.trim().toUpperCase()})  ;
@@ -34,38 +35,38 @@ export const addSize = async (req, res) =>{
 }
 
 //fetch sizes
-export const getSizes = async (req, res) =>{
+export const getSizes = async (req, res,next) =>{
     try{
         const sizes = await SizeDB.find();
 
        return res.status(200).json({message : "sizes fetched successfully", sizes : sizes})
     }
     catch(error){
-        return res.status(500).json({message :"Internal server error"});
+        return next(errorHandler(500,"Internal server error"))
     }
 }
 
 //fetch sizes for product add
-export const getSizesForProduct = async (req, res) =>{
+export const getSizesForProduct = async (req, res, next) =>{
     try{
         const sizes = await SizeDB.find({isActive : true});
 
        return res.status(200).json({message : "sizes fetched successfully", sizes : sizes})
     }
     catch(error){
-        return res.status(500).json({message :"Internal server error"});
+        return next(errorHandler(500,"Internal server error"))
     }
 }
 
 //block or unblock the size
-export const blockSize = async(req, res) =>{
+export const blockSize = async(req, res, next) =>{
     try{
         const {id} = req.params;
 
         const brand = await SizeDB.findById(id);
 
         if(!brand){
-            return res.status(404).json({message : "Brand not found"});
+            return next(errorHandler(404,"Brand not found"));
         }
 
         brand.isActive = !brand.isActive;
@@ -75,6 +76,6 @@ export const blockSize = async(req, res) =>{
         return res.status(200).json({message : `${brand.name} has been ${brand.isActive} ? "blocked" : "unblocked"`});
     }
     catch(error){
-        return res.status(500).json({message : "Internal server error . please try again" })
+        return next(errorHandler(500,"Internal server error.Please try again"))
     }
 }
