@@ -54,8 +54,7 @@ export const getWallet = async (req, res, next) => {
 
     const numberofPages = Math.ceil(wallet[0].transactionCount / Number(limit));
     wallet[0].numberofPages = numberofPages;
-    
-    return res.status(200).json({ message: "wallet fetched successfully", wallet: wallet[0] });
+    return res.status(200).json({ message: "wallet fetched successfully", wallet:{ ...wallet[0],numberofPages }});
   } catch (error) {
     return next(errorHandler(500, "Something went wrong while fetching wallet"));
   }

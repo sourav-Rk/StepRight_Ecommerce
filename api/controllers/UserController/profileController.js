@@ -40,12 +40,11 @@ export const getUserProfile = async (req, res) => {
 export const editProfile = async (req, res, next) => {
   try {
     const userId = req.userId;
-    console.log("User ID:", userId);
+
     const { firstName, lastName, phone } = req.body;
 
     //find user by id
     let user = await usersDB.findById(userId);
-    console.log("User Found:", user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -64,9 +63,7 @@ export const editProfile = async (req, res, next) => {
     user.lastName = lastName || user.lastName;
     user.phone = phone || user.phone;
 
-    console.log("Saving User Data:", user);
     await user.save();
-    console.log("User Data Saved Successfully!");
 
     return res.status(200).json({ message: "Profile updated succesfully" });
   } catch (error) {

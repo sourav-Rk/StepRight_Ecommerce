@@ -25,6 +25,7 @@ export const verifyUser = async (req, res, next) => {
   }
 };
 
+
 const handleRefreshToken = async (req, res, next, refreshToken) => {
   if (refreshToken) {
     try {

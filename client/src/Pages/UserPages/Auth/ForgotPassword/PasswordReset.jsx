@@ -205,7 +205,7 @@ const PasswordReset = () => {
 
     setLoading(true);
     try {
-      const response = await forgotChangePassword({ email, newPassword: formData.newPassword });
+      const response = await forgotChangePassword({ email, newPassword: formData.newPassword,confirmPassword:formData.confirmPassword });
 
       message.success(response?.message || "Password changed successfully");
       setTimeout(() => navigate("/login"), 1000);

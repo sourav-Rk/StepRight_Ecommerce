@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '@/Api/User/authApi';
 import { message } from 'antd';
+import { UserLogout } from '@/Redux/userSlice';
 
 const UserSideBar = () => {
   const [activeRoute, setActiveRoute] = useState('account');
@@ -31,8 +32,10 @@ const UserSideBar = () => {
       try {
         const response = await logout();
         message.success(response.message);
+        navigate('/');
         dispatch(UserLogout());
       } catch (error) {
+        console.log("error in logout",error)
         message.error("Failed to logout");
       }
     };

@@ -110,6 +110,7 @@ const PersonalInformation = () => {
       });
   };
 
+  
   const shareReferralLink = () => {
     const referralCode = userDetails.referralCode ;
     const referralLink = `http://localhost:5173/signup?ref=${referralCode}`;
@@ -313,18 +314,6 @@ const PersonalInformation = () => {
             </div>
           </div>
           
-          {/* Stats and Share Section */}
-          {/* <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
-              <p className="text-xs text-white/70">Successful Referrals</p>
-              <p className="text-xl font-bold">{userDetails.referralCount || 0}</p>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-center">
-              <p className="text-xs text-white/70">Rewards Earned</p>
-              <p className="text-xl font-bold">{userDetails.rewardsEarned || "$0"}</p>
-            </div>
-          </div> */}
-          
           <button 
             onClick={shareReferralLink}
             className="w-full flex items-center justify-center gap-2 py-3 bg-white text-indigo-600 rounded-lg 
@@ -346,3 +335,5 @@ const PersonalInformation = () => {
 };
 
 export default PersonalInformation;
+
+

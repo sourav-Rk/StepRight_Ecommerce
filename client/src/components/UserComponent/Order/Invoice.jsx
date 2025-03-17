@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Printer, Download, ShoppingBag } from "lucide-react"
 import { message } from "antd"
-import { getOrderById } from "@/Api/Admin/ordersApi"
+import {getOrderById} from "@/Api/User/orderApi.js"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 

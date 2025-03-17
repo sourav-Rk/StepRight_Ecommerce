@@ -70,6 +70,7 @@ export default function DeliveryAddress({
         const response = await addAddress(newAddress);
 
         message.success(response.message);
+        
 
         setNewAddress({
           fullname: "",

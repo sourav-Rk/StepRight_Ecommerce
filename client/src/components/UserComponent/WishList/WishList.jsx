@@ -9,21 +9,23 @@ const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+   
+  //to fetch wish list
+  const fetchWishlist = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getWishlist();
+      console.log(response);
+      setWishlist(response.wishlist.products || []);
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getWishlist();
-        console.log(response);
-        setWishlist(response.wishlist.products || []);
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+   
     fetchWishlist();
   }, []);
 
@@ -45,10 +47,11 @@ const Wishlist = () => {
       }
    }
  
-
+  //to remove from the cart
   const handleRemoveFromWishlist = async (productId, size) => {
     try {
       const response = await removeFromWishlist(productId,size);
+      await fetchWishlist()
       message.success(response.message);
     } catch (error) {
       message.error(error?.message);

@@ -11,6 +11,7 @@ export const placeOrder = async (orderData) => {
     }
 }
 
+//to create razorpay order
 export const makePayment = async (paymentData) => {
     try {
       const response = await axiosInstance('/users/makePayment', {
@@ -45,10 +46,21 @@ export const verifyPayment = async(paymentDetails) => {
 }
 
 
-//to get all orders made by the user
-export const getUserOrders = async (req, res, next) => {
+//to update the payment status
+export const updatePaymentStatus = async (orderId,transactionId) =>{
     try{
-        const response = await axiosInstance.get('/users/orders');
+        const response = await axiosInstance.post('/users/orders/update-payment',{orderId,transactionId});
+        return response.data
+    }
+    catch(error){
+        throw error?.response?.data || error;
+    }
+}
+
+//to get all orders made by the user
+export const getUserOrders = async (page=1,limit=5) => {
+    try{
+        const response = await axiosInstance.get(`/users/orders?page=${page}&limit=${limit}`);
         return response.data
     }
     catch(error){
@@ -70,7 +82,7 @@ export const getItemDetails = async (orderId, itemId) => {
 //to get a order details by its id
 export const getOrderById = async(id) => {
     try{
-        const response = await axiosInstance.get(`users/orders/${id}`);
+        const response = await axiosInstance.get(`/users/orders/${id}`);
         return response.data
     }
     catch(error){

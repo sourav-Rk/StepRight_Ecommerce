@@ -34,7 +34,7 @@ const CategoryProduct = () => {
     const searchParam = searchParams.get("search") || "";
     setSortBy(sortByParam);
     setCurrentPage(pageParam);
-    setSearchTerm(searchParam); // Sync searchTerm with URL
+    setSearchTerm(searchParam); 
   }, [searchParams]);
 
   const fetchAdvancedProducts = async () => {
@@ -53,9 +53,10 @@ const CategoryProduct = () => {
         categoryId,
         categories: categoriesParam,
         brands: brandsParam,
-        name: searchParam, // Include search term in API call
+        name: searchParam, 
       });
 
+      console.log("products:",response)
       if (response.products.length > 0 && response.products[0].category) {
         setCategoryName(response.products[0].category);
       }
@@ -165,7 +166,8 @@ const CategoryProduct = () => {
                 <ProductCard
                   id={product._id}
                   name={product.name}
-                  rating={4.5}
+                  rating={product?.averageRating || 0}
+                  reviewCount={product?.reviewCount}
                   regularPrice={product.variants[0].regularPrice}
                   salePrice={product.variants[0].salePrice}
                   imageUrl={product.images[0]}

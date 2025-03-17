@@ -8,19 +8,14 @@ import ForgotPasswordPage from "@/Pages/UserPages/Auth/ForgotPassword/ForgotPass
 import PasswordReset from "@/Pages/UserPages/Auth/ForgotPassword/PasswordReset.jsx";
 import LandingPage from "@/Pages/UserPages/LandingPage/LandingPage.jsx";
 import UserLoginPrivate from "./ProtectedRouting/User/UserLoginPrivate";
-//import ShoppingAllPage from "@/Pages/UserPages/CategoryPages/ShopAllPage";
 import ProductDetailPage from "@/Pages/UserPages/CategoryPages/ProductDetailPage";
 import NotFound from "@/components/Common/NotFound";
 import AccountPage from "@/Pages/UserPages/AccountPage/AccountPage";
 import UserPrivate from "./ProtectedRouting/User/UserPrivate";
 import AddressPage from "@/Pages/UserPages/AddressPage/AddAddressPage";
-//import AddressList from "@/components/UserComponent/Address/AddressList";
 import AddressListPage from "@/Pages/UserPages/AddressPage/AddressListPage";
-//import ShoppingCart from "@/components/UserComponent/Cart/Cart";
 import CartPage from "@/Pages/UserPages/CartPage/CartPage";
 import CheckOutPage from "@/Pages/UserPages/CheckOutPage/CheckOutPage";
-//import OrderSuccessPage from "@/components/UserComponent/Order/OrderSuccessPage";
-//import UserOrders from "@/components/UserComponent/Order/UserOrders";
 import UserOrdersPage from "@/Pages/UserPages/UserOrders/UserOrdersPage";
 import OrderDetailPage from "@/Pages/UserPages/UserOrders/OrderDetail";
 import CategoryProductPage from "@/Pages/UserPages/CategoryPages/CategoryProductPage";
@@ -40,32 +35,37 @@ const UserRoute = () => {
     return(
         <>
         <Routes>
+            {/* aunthentication */}
             <Route path="/login" element={<UserLoginPrivate><LoginPage /></UserLoginPrivate>} />
             <Route path="/signup" element={<UserLoginPrivate><Signup/></UserLoginPrivate>} />
             <Route path="/otp" element={<OTPVerificationForm />} />
             <Route path="/forgot/verifyEmail" element={<ForgotPasswordPage />}/>
             <Route path="/reset-password" element={<PasswordReset />}/>
-
+            
+            {/* Product display */}
             <Route path="/" element={<LandingPage/>}/>
             <Route path="/category/:categoryId" element={<CategoryProductPage/>}/>
             <Route path="/shop-all" element={<CategoryProductPage/>}/>
             <Route path="/product-detail/:id" element={<ProductDetailPage/>}/>
-
+            <Route path="/wishlist" element={<UserPrivate><WishlistPage/></UserPrivate>}/>
+            
+            {/* account and address */}
             <Route path="/account" element={<UserPrivate><AccountPage/></UserPrivate>} />
             <Route path="/address" element={<UserPrivate><AddressListPage/></UserPrivate>} />
             <Route path="/address/add" element={<UserPrivate><AddressPage/></UserPrivate>}/>
             <Route path="/address/:id"element={<UserPrivate><AddressPage/></UserPrivate>}/>
-           
+            
+            {/* orders and cart */}
             <Route path="/cart" element={<UserPrivate><CartPage/></UserPrivate>}/>
             <Route path="/checkout" element={<UserPrivate><CheckOutPage/></UserPrivate>} />
             <Route path="/orders" element={<UserPrivate><UserOrdersPage/></UserPrivate>}/>
             <Route path="/orders/:orderId" element={<UserPrivate><OrderDetailPage/></UserPrivate>} />
             <Route path="/orders/:orderId/item/:itemId" element={<UserPrivate><ItemDetailPage/></UserPrivate>} />
-            <Route path="/orders/invoice/:orderId" element={<Invoice/>}/>
+            <Route path="/orders/invoice/:orderId" element={<UserPrivate><Invoice/></UserPrivate>}/>
             
-            <Route path="/wishlist" element={<UserPrivate><WishlistPage/></UserPrivate>}/>
+             {/* wallet */}
+            <Route path="/wallet" element={<UserPrivate><WalletPage/></UserPrivate>}/>
 
-            <Route path="/wallet" element={<UserPrivate><WalletPage/></UserPrivate>} />
             <Route path="*" element={<NotFound />} />
             
         </Routes>

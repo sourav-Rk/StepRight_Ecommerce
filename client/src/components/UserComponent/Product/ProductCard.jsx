@@ -8,6 +8,7 @@ const ProductCard = ({
   id,
   name,
   rating,
+  reviewCount,
   regularPrice,
   salePrice ,
   imageUrl,
@@ -156,9 +157,9 @@ const ProductCard = ({
           <div className="flex mr-2">
             {renderStars()}
           </div>
-          <span className="text-sm text-gray-600">({rating})</span>
+          <span className="text-sm text-gray-600">({reviewCount})</span>
         </div>
-
+  
         {/* Price */}
         <div className="flex items-center gap-2">
 

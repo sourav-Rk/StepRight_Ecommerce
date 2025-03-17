@@ -35,6 +35,31 @@ export const downloadSalesReportExcel = async (queryString) => {
 
   } catch (error) {
     throw error?.response?.data || error
-    console.error("Error downloading sales report:", error);
+   
   }
 };
+
+
+//dashboard
+
+//API call to get saleschart data
+export const getSalesChartData = async(filter) => {
+    try{
+        const response = await axiosInstance.get(`/admin/salesdashboard?filter=${filter}`);
+        return response.data
+    }
+    catch(error){
+        throw error?.response?.data || error
+    }
+}
+
+//API call to get BestSelling Products
+export const fetchBestSellingProducts = async () =>{
+    try{
+        const response = await axiosInstance(`/admin/bestSellingProducts`);
+        return response.data
+    }
+    catch(error){
+        throw error?.response?.data || error
+    }
+}

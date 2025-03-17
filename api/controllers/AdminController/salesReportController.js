@@ -1,9 +1,20 @@
 import orderDB from "../../Models/orderSchema.js";
-import {errorHandler} from "../../Middleware/error.js"
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
+import usersDB from "../../Models/userSchema.js";
+import { errorHandler } from "../../Middleware/error.js";
+import {
+  format,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+} from "date-fns";
 import PDFDocument from "pdfkit";
-import PDFTableDocument from "pdfkit-table"; 
-import  ExcelJS  from 'exceljs'
+import PDFTableDocument from "pdfkit-table";
+import ExcelJS from "exceljs";
 
 const dateRangeCalculator = (dateRange, from, to) => {
   const today = new Date();
@@ -29,12 +40,11 @@ const dateRangeCalculator = (dateRange, from, to) => {
     case "custom":
       const fromDate = new Date(from);
       const toDate = new Date(to);
-      
+
       if (isNaN(fromDate) || isNaN(toDate)) {
         startDate = null;
         endDate = null;
       } else if (fromDate.getTime() === toDate.getTime()) {
-      
         startDate = startOfDay(fromDate);
         endDate = endOfDay(fromDate);
       } else {
@@ -46,16 +56,21 @@ const dateRangeCalculator = (dateRange, from, to) => {
       startDate = null;
       endDate = null;
   }
-  
+
   return { startDate, endDate };
 };
 
-
-
+//to get salesreport
 const getSalesReport = async (req, res) => {
   try {
-    const { filter, startDate: from, endDate: to, page = 1, limit = 10 } = req.query;
-     
+    const {
+      filter,
+      startDate: from,
+      endDate: to,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
     const parsedPage = parseInt(page);
     const parsedLimit = parseInt(limit);
     const skip = (parsedPage - 1) * parsedLimit;
@@ -63,12 +78,14 @@ const getSalesReport = async (req, res) => {
     const { startDate, endDate } = dateRangeCalculator(filter, from, to);
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ success: false, message: "Invalid date range" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid date range" });
     }
 
-    // First get the total count for pagination
+    //  get the total count for pagination
     const totalOrdersCount = await orderDB.countDocuments({
-      createdAt: { $gte: startDate, $lte: endDate }
+      createdAt: { $gte: startDate, $lte: endDate },
     });
 
     const report = await orderDB.aggregate([
@@ -129,9 +146,9 @@ const getSalesReport = async (req, res) => {
         $project: {
           reportData: { $slice: ["$reportData", skip, parsedLimit] },
           summary: 1,
-          paymentMethods: 1
-        }
-      }
+          paymentMethods: 1,
+        },
+      },
     ]);
 
     const result = {
@@ -141,10 +158,13 @@ const getSalesReport = async (req, res) => {
         totalSales: 0,
         totalDiscount: 0,
       },
-      paymentMethods: report[0].paymentMethods.reduce((acc, curr) => ({
-        ...acc,
-        [curr._id]: curr.total,
-      }), {}),
+      paymentMethods: report[0].paymentMethods.reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr._id]: curr.total,
+        }),
+        {}
+      ),
     };
 
     res.status(200).json({
@@ -163,16 +183,18 @@ const getSalesReport = async (req, res) => {
   }
 };
 
-export default getSalesReport
+export default getSalesReport;
 
-
+//to download salesreport
 export const downloadSalesReportPDF = async (req, res, next) => {
   try {
     const { filter, startDate: from, endDate: to } = req.query;
     const { startDate, endDate } = dateRangeCalculator(filter, from, to);
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ success: false, message: "Invalid date range" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid date range" });
     }
 
     // Fetch sales report data
@@ -220,13 +242,24 @@ export const downloadSalesReportPDF = async (req, res, next) => {
     // Create PDF Document
     const doc = new PDFTableDocument({ margin: 50 });
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=sales_report.pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales_report.pdf"
+    );
     doc.pipe(res);
 
     // Title
     doc.fontSize(20).text("Sales Report", { align: "center" });
     doc.moveDown();
-    doc.fontSize(12).text(`Date Range: ${format(startDate, "MMM dd, yyyy")} - ${format(endDate, "MMM dd, yyyy")}`, { align: "center" });
+    doc
+      .fontSize(12)
+      .text(
+        `Date Range: ${format(startDate, "MMM dd, yyyy")} - ${format(
+          endDate,
+          "MMM dd, yyyy"
+        )}`,
+        { align: "center" }
+      );
     doc.moveDown();
 
     // Summary Section
@@ -239,7 +272,7 @@ export const downloadSalesReportPDF = async (req, res, next) => {
 
     // **Generate Table for Orders**
     const table = {
-      title : "Orders Report",
+      title: "Orders Report",
       headers: [
         "Order ID",
         "Date",
@@ -264,25 +297,25 @@ export const downloadSalesReportPDF = async (req, res, next) => {
       ]),
     };
 
+    await doc.table(table);
 
-    await doc.table(table)
-
-   doc.end(); 
-
+    doc.end();
   } catch (error) {
     console.error("Error generating PDF report:", error);
     next(errorHandler(500, "Error generating PDF report"));
   }
 };
 
-
+//download salesreport excel
 export const downloadSalesReportExcel = async (req, res, next) => {
   try {
     const { filter, startDate: from, endDate: to } = req.query;
     const { startDate, endDate } = dateRangeCalculator(filter, from, to);
 
     if (!startDate || !endDate) {
-      return res.status(400).json({ success: false, message: "Invalid date range" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid date range" });
     }
 
     // Fetch sales report data
@@ -341,14 +374,21 @@ export const downloadSalesReportExcel = async (req, res, next) => {
     // Add Date Range
     worksheet.mergeCells("A2:I2");
     const dateRangeCell = worksheet.getCell("A2");
-    dateRangeCell.value = `Date Range: ${format(startDate, "MMM dd, yyyy")} - ${format(endDate, "MMM dd, yyyy")}`;
+    dateRangeCell.value = `Date Range: ${format(
+      startDate,
+      "MMM dd, yyyy"
+    )} - ${format(endDate, "MMM dd, yyyy")}`;
     dateRangeCell.font = { italic: true, size: 12 };
     dateRangeCell.alignment = { horizontal: "center" };
 
     // Add Summary Data
     worksheet.addRow([]);
     worksheet.addRow(["Total Orders", "Total Sales (₹)", "Total Discount (₹)"]);
-    worksheet.addRow([summary.totalOrders, summary.totalSales.toFixed(2), summary.totalDiscount.toFixed(2)]);
+    worksheet.addRow([
+      summary.totalOrders,
+      summary.totalSales.toFixed(2),
+      summary.totalDiscount.toFixed(2),
+    ]);
     worksheet.addRow([]);
 
     // Define Column Headers
@@ -371,7 +411,7 @@ export const downloadSalesReportExcel = async (req, res, next) => {
         format(new Date(order.orderedDate), "MMM dd, yyyy"),
         order.userName || "N/A",
         order.paymentMethod,
-        order.totalQuantity, 
+        order.totalQuantity,
         order.totalAmount.toFixed(2),
         order.discountAmount.toFixed(2),
         order.couponCode || "-",
@@ -379,20 +419,28 @@ export const downloadSalesReportExcel = async (req, res, next) => {
       ]);
       row.getCell(5).alignment = { horizontal: "left" };
     });
-    
 
     // Auto-fit Columns
     worksheet.columns.forEach((column) => {
       let maxLength = 0;
       column.eachCell({ includeEmpty: true }, (cell) => {
-        maxLength = Math.max(maxLength, cell.value ? cell.value.toString().length : 10);
+        maxLength = Math.max(
+          maxLength,
+          cell.value ? cell.value.toString().length : 10
+        );
       });
       column.width = maxLength + 2;
     });
 
     // Set Response Headers
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", "attachment; filename=sales_report.xlsx");
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales_report.xlsx"
+    );
 
     // Write Excel file to response
     await workbook.xlsx.write(res);
@@ -400,5 +448,219 @@ export const downloadSalesReportExcel = async (req, res, next) => {
   } catch (error) {
     console.error("Error generating Excel report:", error);
     next(errorHandler(500, "Error generating Excel report"));
+  }
+};
+
+
+//sales analytics
+export const getSalesAnalytics = async (req, res) => {
+  try {
+    
+    const { filter, startDate, endDate } = req.query;
+
+    
+    const validFilters = ["daily", "weekly", "monthly", "yearly"];
+    if (!validFilters.includes(filter)) {
+      return res.status(400).json({ error: "Invalid filter parameter" });
+    }
+
+
+    const dateFilter = {};
+    if (startDate && endDate) {
+      dateFilter.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+
+    //  Sales Data Aggregation 
+    const salesData = await orderDB.aggregate([
+      { $match: dateFilter },
+      {
+        $group: {
+          _id: getDateGrouping(filter),
+          totalRevenue: { $sum: "$totalAmount" },
+          orderCount: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // best selling categories
+    const categories = await orderDB.aggregate([
+      { $match: dateFilter },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $lookup: {
+          from: "categories", 
+          localField: "product.category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" }, 
+      {
+        $group: {
+          _id: "$category.name", 
+          totalSales: { $sum: "$items.quantity" },
+          revenue: {
+            $sum: { $multiply: ["$items.quantity", "$items.productPrice"] },
+          },
+        },
+      },
+      { $sort: { revenue: -1 } },
+      { $limit: 5 },
+    ]);
+
+    //  Best Selling Brands 
+    const brands = await orderDB.aggregate([
+      { $match: dateFilter },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $lookup: {
+          from: "brands", 
+          localField: "product.brand",
+          foreignField: "_id",
+          as: "brandInfo",
+        },
+      },
+      { $unwind: "$brandInfo" }, 
+      {
+        $group: {
+          _id: "$brandInfo.name", 
+          totalSales: { $sum: "$items.quantity" },
+          revenue: {
+            $sum: { $multiply: ["$items.quantity", "$items.productPrice"] },
+          },
+        },
+      },
+      { $sort: { revenue: -1 } },
+      { $limit: 5 },
+    ]);
+
+    //  User Signups
+    const users = await usersDB.aggregate([
+      { $match: dateFilter },
+      {
+        $group: {
+          _id: getDateGrouping(filter),
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Total Orders and Revenue
+    const totals = await orderDB.aggregate([
+      { $match: dateFilter },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$totalAmount" },
+          totalOrders: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const topProducts = await orderDB.aggregate([
+      { $match: dateFilter },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $group: {
+          _id: "$product.name",
+          totalSales: { $sum: "$items.quantity" }, // This is the selling count (units sold)
+        },
+      },
+      { $sort: { totalSales: -1 } }, 
+      { $limit: 7 },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        sales: formatSalesData(salesData, filter),
+        categories,
+        brands,
+        topProducts,
+        users: formatUserData(users, filter),
+        totals: totals[0] || { totalRevenue: 0, totalOrders: 0 },
+      },
+    });
+  } catch (error) {
+    console.error("Analytics error:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+// Helper functions
+const getDateGrouping = (filter) => {
+  const formats = {
+    daily: "%Y-%m-%d",
+    weekly: "%Y-%U",
+    monthly: "%Y-%m",
+    yearly: "%Y",
+  };
+  return { $dateToString: { format: formats[filter], date: "$createdAt" } };
+};
+
+const formatSalesData = (data, filter) => {
+  return data.map((item) => ({
+    date: formatDateLabel(item._id, filter),
+    revenue: item.totalRevenue,
+    orders: item.orderCount,
+  }));
+};
+
+const formatUserData = (data, filter) => {
+  return data.map((item) => ({
+    date: formatDateLabel(item._id, filter),
+    count: item.count,
+  }));
+};
+
+const formatDateLabel = (dateString, filter) => {
+  switch (filter) {
+    case "daily":
+      return new Date(dateString).toLocaleDateString();
+    case "weekly":
+      const [year, week] = dateString.split("-");
+      return `Week ${week}, ${year}`;
+    case "monthly":
+      const [y, m] = dateString.split("-");
+      return new Date(y, m - 1).toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+    case "yearly":
+      return dateString;
+    default:
+      return dateString;
   }
 };

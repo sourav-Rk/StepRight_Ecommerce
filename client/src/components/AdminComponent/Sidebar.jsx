@@ -7,7 +7,7 @@ import {
   PlusCircle,
   ShoppingBag,
   Ticket,
-  ImageIcon,
+  Star,
   ClipboardList,
   BarChart3,
   Menu,
@@ -54,7 +54,7 @@ const Sidebar = () => {
     { title: "Add Product", icon: PlusCircle, path: "/admin/add/products" },
     { title: "Products", icon: ShoppingBag, path: "/admin/products" },
     { title: "Coupon", icon: Ticket, path: "/admin/coupon" },
-    { title: "Banner", icon: ImageIcon, path: "/admin/banner" },
+    { title: "Reviews", icon: Star, path: "/admin/reviews" },
     { title: "Orders", icon: ClipboardList, path: "/admin/orders" },
     { title: "Sales Report", icon: BarChart3, path: "/admin/sales-report" },
   ];

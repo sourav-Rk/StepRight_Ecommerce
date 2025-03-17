@@ -12,10 +12,12 @@ import { message } from "antd";
 import { addToCart } from "@/Api/User/cartApi";
 import { Heart } from "lucide-react";
 import { addToWishlist } from "@/Api/User/wishlistApi";
+import ProductReviews from "../ProductReview";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [reviewCount, setReviewCount] = useState(0)
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -95,6 +97,30 @@ const ProductDetails = () => {
        console.log("Error adding wishlist",error)
      }
   }
+
+    // Generate stars based on rating
+    const renderStars = () => {
+      const stars = [];
+      const fullStars = Math.floor(product.averageRating);
+      const hasHalfStar = product.averageRating % 1 !== 0;
+  
+      for (let i = 0; i < 5; i++) {
+        if (i < fullStars) {
+          stars.push(
+            <span key={i} className="text-yellow-400">★</span>
+          );
+        } else if (i === fullStars && hasHalfStar) {
+          stars.push(
+            <span key={i} className="text-yellow-400">⭐</span>
+          );
+        } else {
+          stars.push(
+            <span key={i} className="text-gray-300">★</span>
+          );
+        }
+      }
+      return stars;
+    };
 
   if (loading) {
     return (
@@ -184,14 +210,12 @@ const ProductDetails = () => {
               </span>
             )}
           </h1>
-          {/* Dummy rating & reviews */}
+          {/*  rating & reviews */}
           <div className="flex items-center gap-2 mt-2">
             <div className="flex items-center">
-              {[...Array(5)].map((_, idx) => (
-                <span key={idx} className="text-yellow-400">★</span>
-              ))}
+            {renderStars()}
             </div>
-            <span className="text-sm text-gray-300">(100 reviews)</span>
+            <span className="text-sm text-gray-300">({reviewCount})</span>
           </div>
         </div>
 
@@ -309,6 +333,12 @@ const ProductDetails = () => {
     </div>
      
      <InfoAccordion/>
+
+     <ProductReviews
+      productId={product._id}
+      setReviewCount={setReviewCount}
+     />
+
      {product && (
         <RelatedProduct 
             categoryId={product.category?._id} 

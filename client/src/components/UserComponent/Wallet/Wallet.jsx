@@ -1,70 +1,87 @@
-import React, { useState } from 'react';
-import { ArrowUpRight, ArrowDownLeft, CreditCard, Wallet, RefreshCw, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  ArrowUpRight,
+  ArrowDownLeft,
+  CreditCard,
+  Wallet,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+} from "lucide-react";
 
-const WalletComponent = ({ wallet }) => {
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [currentPage, setCurrentPage] = useState(1);
-  const transactionsPerPage = 5;
+const WalletComponent = ({   wallet, 
+  currentPage, 
+  setCurrentPage, 
+  activeFilter, 
+  setActiveFilter, 
+  totalPages  }) => 
+    {
 
+  // const transactionsPerPage = 5;
 
-  const currentWallet = wallet || mockWallet;
+  const currentWallet = wallet || { transactions: [], balance: 0 };
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
     }).format(amount);
   };
 
   // Format date
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
 
   // Filter transactions
-  const filterTransactions = (transactions) => {
-    let filteredTransactions = transactions;
-    
-    switch(activeFilter) {
-      case 'Credit':
-        filteredTransactions = transactions.filter(t => t.transactionType === 'Credit');
-        break;
-      case 'Debit':
-        filteredTransactions = transactions.filter(t => t.transactionType === 'Debit');
-        break;
-      default:
-        filteredTransactions = transactions;
-    }
+  // const filterTransactions = (transactions) => {
+  //   let filteredTransactions = transactions;
 
-    return filteredTransactions;
-  };
+  //   switch (activeFilter) {
+  //     case "Credit":
+  //       filteredTransactions = transactions.filter(
+  //         (t) => t.transactionType === "Credit"
+  //       );
+  //       break;
+  //     case "Debit":
+  //       filteredTransactions = transactions.filter(
+  //         (t) => t.transactionType === "Debit"
+  //       );
+  //       break;
+  //     default:
+  //       filteredTransactions = transactions;
+  //   }
 
-  // Pagination
-  const filteredTransactions = filterTransactions(currentWallet.transactions);
-  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
-  
-  const paginatedTransactions = filteredTransactions.slice(
-    (currentPage - 1) * transactionsPerPage, 
-    currentPage * transactionsPerPage
-  );
+  //   return filteredTransactions;
+  // };
 
-  // Pagination handlers
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  // // Pagination
+  // const filteredTransactions = filterTransactions(currentWallet.transactions);
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+
+  // const paginatedTransactions = filteredTransactions.slice(
+  //   (currentPage - 1) * transactionsPerPage,
+  //   currentPage * transactionsPerPage
+  // );
+
+  // // Pagination handlers
+  // const handleNextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //   }
+  // };
+
+  // const handlePrevPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //   }
+  // };
 
   return (
     <div className="bg-white text-black min-h-screen">
@@ -77,7 +94,9 @@ const WalletComponent = ({ wallet }) => {
                 <Wallet className="w-8 h-8 text-neutral-300" />
                 <h1 className="text-3xl font-bold tracking-tight">My Wallet</h1>
               </div>
-              <p className="text-neutral-400 text-sm">Manage your funds and track transactions</p>
+              <p className="text-neutral-400 text-sm">
+                Manage your funds and track transactions
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <button className="bg-neutral-800 hover:bg-neutral-700 p-3 rounded-full transition-all">
@@ -113,7 +132,7 @@ const WalletComponent = ({ wallet }) => {
 
         {/* Transaction Filters */}
         <div className="flex justify-center space-x-4 mb-6">
-          {['All', 'Credit', 'Debit'].map((filter) => (
+          {["all", "Credit", "Debit"].map((filter) => (
             <button
               key={filter}
               onClick={() => {
@@ -121,36 +140,42 @@ const WalletComponent = ({ wallet }) => {
                 setCurrentPage(1);
               }}
               className={`
-                px-4 py-2 rounded-full transition-all duration-300 border
-                ${activeFilter === filter 
-                  ? 'bg-black text-white' 
-                  : 'bg-white text-black hover:bg-neutral-100 border-neutral-300'}
-              `}
+        px-4 py-2 rounded-full transition-all duration-300 border
+        ${
+          activeFilter === filter
+            ? "bg-black text-white"
+            : "bg-white text-black hover:bg-neutral-100 border-neutral-300"
+        }
+      `}
             >
-              {filter}
+              {filter === "all" ? "All" : filter}
             </button>
           ))}
         </div>
 
         {/* Transactions List */}
         <div className="space-y-4">
-          {paginatedTransactions.map((transaction, index) => (
-            <div 
-              key={index} 
+          {currentWallet.transactions.map((transaction, index) => (
+            <div
+              key={index}
               className="bg-neutral-100 rounded-xl p-4 flex items-center justify-between hover:bg-neutral-200 transition-all group"
             >
               <div className="flex items-center space-x-4">
-                <div 
+                <div
                   className={`
                     p-3 rounded-full
-                    ${transaction.transactionType === 'Credit' 
-                      ? 'bg-green-100 text-green-600' 
-                      : 'bg-red-100 text-red-600'}
+                    ${
+                      transaction.transactionType === "Credit"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
+                    }
                   `}
                 >
-                  {transaction.transactionType === 'Credit' 
-                    ? <ArrowDownLeft className="w-6 h-6" /> 
-                    : <ArrowUpRight className="w-6 h-6" />}
+                  {transaction.transactionType === "Credit" ? (
+                    <ArrowDownLeft className="w-6 h-6" />
+                  ) : (
+                    <ArrowUpRight className="w-6 h-6" />
+                  )}
                 </div>
                 <div>
                   <p className="font-semibold">{transaction.description}</p>
@@ -160,25 +185,29 @@ const WalletComponent = ({ wallet }) => {
                 </div>
               </div>
               <div className="text-right">
-                <p 
+                <p
                   className={`
                     font-bold
-                    ${transaction.transactionType === 'Credit' 
-                      ? 'text-green-600' 
-                      : 'text-red-600'}
+                    ${
+                      transaction.transactionType === "Credit"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }
                   `}
                 >
-                  {transaction.transactionType === 'Credit' ? '+' : '-'}
+                  {transaction.transactionType === "Credit" ? "+" : "-"}
                   {formatCurrency(transaction.amount)}
                 </p>
-                <p 
+                <p
                   className={`
                     text-sm
-                    ${transaction.transactionStatus === 'Success' 
-                      ? 'text-green-600' 
-                      : transaction.transactionStatus === 'Pending'
-                      ? 'text-yellow-600'
-                      : 'text-red-600'}
+                    ${
+                      transaction.transactionStatus === "Success"
+                        ? "text-green-600"
+                        : transaction.transactionStatus === "Pending"
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                    }
                   `}
                 >
                   {transaction.transactionStatus}
@@ -189,11 +218,11 @@ const WalletComponent = ({ wallet }) => {
         </div>
 
         {/* Pagination Controls */}
-        {filteredTransactions.length > 0 && (
+        {currentWallet.transactions.length > 0 && (
           <div className="flex justify-center items-center mt-6 space-x-4">
-            <button 
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
+            <button
+             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+             disabled={currentPage === 1}
               className="
                 p-2 rounded-full border
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -202,14 +231,14 @@ const WalletComponent = ({ wallet }) => {
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
-            
+
             <span className="text-sm text-neutral-600">
               Page {currentPage} of {totalPages}
             </span>
-            
-            <button 
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
+
+            <button
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
               className="
                 p-2 rounded-full border
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -222,7 +251,7 @@ const WalletComponent = ({ wallet }) => {
         )}
 
         {/* No Transactions Message */}
-        {filteredTransactions.length === 0 && (
+        {currentWallet.transactions.length === 0 && (
           <div className="text-center bg-neutral-100 rounded-xl p-8">
             <CreditCard className="w-16 h-16 mx-auto text-neutral-400 mb-4" />
             <p className="text-neutral-600">No transactions yet</p>

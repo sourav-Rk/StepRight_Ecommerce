@@ -5,6 +5,7 @@ import axiosInstance from "../axios";
 export const getSneakers = async() =>{
     try{
         const response = await axiosInstance.get('/users/products/sneakers');
+        console.log(response)
         return response.data
     }
     catch(error){
@@ -28,6 +29,7 @@ export const getCategoriesToDisplay = async() => {
 export const getProductDetails = async(id) =>{
     try{
         const response = await axiosInstance.get(`/users/products/${id}`);
+        console.log("product details",response)
         return response.data
     }
     catch(error){

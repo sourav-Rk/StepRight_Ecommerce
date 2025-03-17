@@ -172,7 +172,7 @@
           ...formData,
           offer: Number(formData.offer), 
           images: uploadedImages,
-          variants: variants.map(({ id, ...rest }) => rest), // Remove `id` from variants
+          variants: variants.map(({ id, ...rest }) => rest),
         };
 
         // Submit product data

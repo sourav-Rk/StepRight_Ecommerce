@@ -86,19 +86,28 @@ const orderSchema = new mongoose.Schema({
   },
   paymentStatus : {
     type : String,
+    enum : ["Pending","paid","Failed"],
     required : true,
     default : "Pending"
   },
   transactionId : {
     type : String, 
   },
+  paymentAttempts: {
+    type: Number,
+    default: 0  
+  },
+  lastPaymentAttemptDate: {
+    type: Date 
+  },
   couponCode:{
     type : String,
     default : null
-  }
+  },
 }, {
   timestamps: true,
 });
 
 const orderDB = mongoose.model("order", orderSchema);
+
 export default orderDB;

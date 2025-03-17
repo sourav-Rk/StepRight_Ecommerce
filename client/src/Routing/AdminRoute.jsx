@@ -18,6 +18,8 @@ import OrderDetailsPage from "@/Pages/AdminPages/OrderListPage/OrderDetailsPage"
 import AddCouponPage from "@/Pages/AdminPages/CouponPage/AddCouponPage";
 import CouponListPage from "@/Pages/AdminPages/CouponPage/CouponListPage";
 import SalesPage from "@/Pages/AdminPages/SalesPage/SalesPage";
+import AdminReviewPanel from "@/components/AdminComponent/Reviews/ReviewList";
+import ReviewPage from "@/Pages/AdminPages/ReviewPage/ReviewPage";
 
 
 const AdminRoute = () => {
@@ -40,6 +42,10 @@ const AdminRoute = () => {
             <Route path="/add/coupon" element={<AdminPrivate><AddCouponPage/></AdminPrivate>}/>
             <Route path="/coupon" element={<AdminPrivate><CouponListPage/></AdminPrivate>}/>
             <Route path="/sales-report" element={<AdminPrivate><SalesPage/></AdminPrivate>}/>
+            <Route path="/dashboard" element={<AdminPrivate><DashboardPage/></AdminPrivate>} />
+            <Route path="/reviews" element={<AdminPrivate><ReviewPage/></AdminPrivate>}/>
+
+         
             <Route path="*" element={<NotFound />} />          
         </Routes>     
 

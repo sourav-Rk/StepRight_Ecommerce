@@ -42,8 +42,8 @@
                   id={product._id}
                   name={product.name}
                   regularPrice={product.variants[0].regularPrice} 
-                  salePrice={product.variants[0].regularPrice+500}
-                  rating={4.5} 
+                  salePrice={product.variants[0].salePrice}
+                  rating={product.averageRating} 
                   imageUrl={product.images[0]}
                   variants={product.variants} 
                 />

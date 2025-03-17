@@ -85,7 +85,7 @@ export const validateProfileUpdate = (data) => {
         "string.empty": "Phone number is required",
         "string.pattern.base": "Phone number must be exactly 10 digits"
       }).unknown(true),
-  });
+  }).unknown(true);
 
 };
 

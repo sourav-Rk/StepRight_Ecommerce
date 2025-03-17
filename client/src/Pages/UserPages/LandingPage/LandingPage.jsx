@@ -11,8 +11,9 @@ const LandingPage = () =>{
     return(
         <>
         <Header/>
-        <Banner/>
         <ImageCarousel/>
+        <Banner/>
+      
         <BestSellingSneakers/>
         <CollectionsGrid/>
         <Footer/>

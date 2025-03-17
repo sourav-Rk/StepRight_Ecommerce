@@ -299,7 +299,8 @@ export const forgotVerifyOtp = async (req,res) =>{
 
 //update the password
 export const forgotChangePassword = async (req, res, next) => {
-    const { email, newPassword, confirmPassword } = req.body;
+    const { email, newPassword, confirmPassword } = req.body; 
+   
 
     if (!email || !newPassword || !confirmPassword) {
         return res.status(400).json({ message: "Email , new password and confirm password are required." });
@@ -348,13 +349,6 @@ export const forgotChangePassword = async (req, res, next) => {
 //Google aunthentication
 export const googleAuth = async(req,res, next)=>{
     const {name,email} = req.body
-
-
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      if (!passwordRegex.test(newPassword)) {
-        return  next(errorHandler(400,"Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character."))
-      }
-
   
     try{
       const UserExists = await usersDB.findOne({email});

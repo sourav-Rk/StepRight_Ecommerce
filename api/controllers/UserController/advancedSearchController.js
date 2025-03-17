@@ -89,9 +89,24 @@ export const advancedSearchProducts = async (req, res, next) => {
           "brandDetails.isActive": true,
         },
       },
+      // New review lookup and calculations
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "productId",
+          as: "reviews"
+        }
+      },
       {
         $addFields: {
-          minPrice: { $min: "$variants.regularPrice" },
+          reviewCount: { $size: "$reviews" },
+          averageRating: { $avg: "$reviews.rating" }
+        }
+      },
+      {
+        $addFields: {
+          minPrice: { $min: "$variants.salePrice" },
         },
       },
       { $sort: sortStage },
@@ -110,6 +125,14 @@ export const advancedSearchProducts = async (req, res, next) => {
           totalStock: { $sum: "$variants.quantity" },
           minPrice: 1,
           createdAt: 1,
+          reviewCount: 1,
+          averageRating: {
+            $cond: [
+              { $eq: ["$averageRating", null] },
+              0,
+              { $round: ["$averageRating", 1] }
+            ]
+          }
         },
       },
     ];

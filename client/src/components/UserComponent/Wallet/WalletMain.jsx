@@ -7,6 +7,7 @@ const WalletMain = () => {
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [activeFilter, setActiveFilter] = useState('all');
 
   const fetchWallet = async () => {
@@ -14,12 +15,16 @@ const WalletMain = () => {
     try {
       const queryParams = {
         transactionType: activeFilter, 
-        limit: 10,
+        limit: 5,
         currentPage: currentPage,
       };
       const data = await getWallet(queryParams);
-      console.log(data);
-      setWallet(data.wallet);
+      console.log(data)
+      if(data.wallet){
+        setWallet(data.wallet);
+        setTotalPages(data.wallet.numberofPages || 1); 
+      }
+      
     } catch (error) {
       console.error('Error fetching wallet details:', error);
       message.error(error?.message || 'Failed to fetch wallet details');
@@ -48,6 +53,7 @@ const WalletMain = () => {
         setCurrentPage={setCurrentPage}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
+        totalPages={totalPages}
       />
     </div>
   );
