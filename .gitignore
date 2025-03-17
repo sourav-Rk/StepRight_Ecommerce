@@ -1,0 +1,12 @@
+# Ignore backend files
+api/node_modules/
+api/.env
+
+# Ignore frontend files
+client/node_modules/
+client/.env
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+*.log
