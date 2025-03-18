@@ -75,10 +75,10 @@
     router.get('/sales-report/download/excel',verifyAdmin,downloadSalesReportExcel); //to download the salesreport -EXCEL
 
     //dashboard
-    router.get('/salesdashboard',getSalesAnalytics); //to get the salesanalytics for dashboard
+    router.get('/salesdashboard',verifyAdmin,getSalesAnalytics); //to get the salesanalytics for dashboard
 
     //review
-    router.get('/reviews',getAdminReviews); //to get the reviews
+    router.get('/reviews',verifyAdmin,getAdminReviews); //to get the reviews
     
     //upload images
     router.post('/upload', (req, res, next) => {
