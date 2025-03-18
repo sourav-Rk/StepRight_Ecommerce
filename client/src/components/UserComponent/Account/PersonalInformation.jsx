@@ -302,7 +302,7 @@ const PersonalInformation = () => {
             <label className="block text-sm font-medium text-white/80 mb-2">Your Referral Link</label>
             <div className="flex items-center bg-white/30 rounded-lg p-2 break-all">
               <span className="text-sm truncate flex-1">
-                http://localhost:5173/signup?ref={userDetails.referralCode || userDetails._id || 'USER123'}
+              https://stepright.vercel.app/signup?ref={userDetails.referralCode || userDetails._id || 'USER123'}
               </span>
               <button 
                 onClick={copyReferralLink} 
