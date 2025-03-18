@@ -394,6 +394,6 @@ return Math.random().toString(36).slice(-8);
 
 //generate phone number
 const generateUniquePhoneNumber = () => {
-    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); 
+   return Math.floor(1000000000 + Math.random() * 9000000000); 
 };
   
