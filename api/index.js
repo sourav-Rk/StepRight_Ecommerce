@@ -1,3 +1,4 @@
+//this is server
 import dotenv from 'dotenv';
 import mongoose from 'mongoose'
 import express from 'express';
