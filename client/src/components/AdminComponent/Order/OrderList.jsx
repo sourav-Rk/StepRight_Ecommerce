@@ -110,6 +110,7 @@ export default function OrderList() {
             search: searchQuery,
           },
         });
+        console.log("orders:",orders)
 
         setOrders(response.orders);
         setPagination(response.pagination);
@@ -242,13 +243,13 @@ export default function OrderList() {
                               <TableCell>
                                 <div className="flex flex-col">
                                   <span className="font-medium">
-                                    {order.userId.firstName}
+                                    {order?.userId?.firstName}
                                   </span>
                                   <span className="text-sm text-muted-foreground">
-                                    {order.userId.email}
+                                    {order?.userId?.email}
                                   </span>
                                   <span className="text-sm text-muted-foreground">
-                                    {order.userId.phone}
+                                    {order?.userId?.phone}
                                   </span>
                                 </div>
                               </TableCell>
@@ -288,7 +289,7 @@ export default function OrderList() {
                                 <div className="flex items-center justify-between">
                                   <div className="space-y-1">
                                     <p className="font-medium">
-                                      {order.orderId}
+                                      {order?.orderId}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
                                       {format(
@@ -306,19 +307,19 @@ export default function OrderList() {
                                   <div className="flex items-center gap-2">
                                     <User className="h-4 w-4" />
                                     <span className="font-medium">
-                                      {order.userId.firstName}
+                                      {order?.userId?.firstName}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <Mail className="h-4 w-4" />
                                     <span className="text-sm">
-                                      {order.userId.email}
+                                      {order?.userId?.email}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <Phone className="h-4 w-4" />
                                     <span className="text-sm">
-                                      {order.userId.phone}
+                                      {order?.userId?.phone}
                                     </span>
                                   </div>
                                 </div>
