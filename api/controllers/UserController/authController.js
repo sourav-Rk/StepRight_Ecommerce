@@ -365,12 +365,15 @@ export const googleAuth = async(req,res, next)=>{
         const [firstName, ...lastNameArray] = name.split(" ");
         const lastName = lastNameArray.join(" ") || "Doe"; 
 
+        const referralCode = generateReferralCode(firstName,lastName);
+
         const newUser = new usersDB({
           firstName,
           lastName,
           email,
           phone:generateUniquePhoneNumber(),
           password :generateRandomPassword(),
+          referralCode,
           role : "user",
           isBlocked : false,
         })
