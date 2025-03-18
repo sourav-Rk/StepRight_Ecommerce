@@ -96,7 +96,7 @@ const PersonalInformation = () => {
 
   const copyReferralLink = () => {
     const referralCode = userDetails.referralCode;
-    const referralLink = `http://localhost:5173/signup?ref=${referralCode}`;
+    const referralLink = `https://stepright.vercel.app/signup?ref=${referralCode}`;
     
     navigator.clipboard.writeText(referralLink)
       .then(() => {
