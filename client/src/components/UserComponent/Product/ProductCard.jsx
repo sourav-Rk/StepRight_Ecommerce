@@ -139,7 +139,7 @@ const ProductCard = ({
 
          {/* Limited Stock Badge */}
          {!isOutOfStock && isLimitedStock && (
-          <div className="absolute top-0 left-0 bg-red-500 text-white px-3 py-1 text-xs font-bold rounded-br-lg shadow-md animate-pulse">
+          <div className="absolute top-0 left-60 bg-red-500 text-white px-3 py-1 text-xs font-bold rounded-br-lg shadow-md animate-pulse">
             Limited Stock
           </div>
         )}
@@ -179,3 +179,4 @@ const ProductCard = ({
 };
 
 export default ProductCard;
+
