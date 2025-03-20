@@ -193,11 +193,19 @@ export default function CheckoutPage() {
                 totalAmount: total,
                 couponCode: appliedCoupon ? appliedCoupon.code : null,
               };
-
-              const response = await placeOrder(orderData);
+              try{
+                const response = await placeOrder(orderData);
               message.success(response.message);
               setOrderDetails(response.newOrder);
               setOrderSuccess(true);
+
+              }catch(error){
+
+                message.error(error?.message);
+                console.log("error in placing order:",error)
+
+              }
+              
             } else {
               message.error("Payment verification failed");
             }
