@@ -240,15 +240,14 @@ export default function CheckoutPage() {
             setOrderSuccess(true);
           }
           catch(error){
-            console.log("Error placing failed order:",error);
-            message.error("Error placing order after payment failure");
+            message.error(error?.message);
           }
         });
 
         rzp.open();
       } catch (error) {
         message.error(error?.message);
-        console.log(error);
+        console.log("error in ordr",error);
       }
     }
   };
