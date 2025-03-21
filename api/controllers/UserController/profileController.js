@@ -8,10 +8,8 @@ import { errorHandler } from "../../Middleware/error.js";
 export const getUserProfile = async (req, res) => {
   try {
     const id = refreshTokenDecoder(req);
-
     const userDetails = await usersDB.findOne({ _id: id });
     const walletBalance = await walletDB.findOne({ userId: id });
-
     if (!userDetails) {
       return res.status(404).json({ message: "User not found" });
     }

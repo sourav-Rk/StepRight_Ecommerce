@@ -3,6 +3,7 @@ import axiosInstance from "../axios";
 export const getUserProfile = async () =>{
     try{
         const response = await axiosInstance.get('/users/profile');
+        console.log("profile response:",response)
         return response.data
     }
     catch(error){

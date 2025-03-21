@@ -378,10 +378,11 @@ export const googleAuth = async(req,res, next)=>{
           isBlocked : false,
         })
         const newUserDetail = await newUser.save();
-        await walletDB.create({ userId: newUser._id, balance: 0, transactions: [] });
+       
 
         generateUserAccessToken(res,newUserDetail)
         generateUserRefreshToken(res,newUserDetail)
+        await walletDB.create({ userId: newUser._id, balance: 0, transactions: [] });
         res.status(200).json({success:true,message:"account created and logged in successfully"})
       }
     }
