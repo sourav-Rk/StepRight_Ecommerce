@@ -202,8 +202,8 @@ export default function CheckoutPage() {
               }catch(error){
 
                 message.error(error?.message);
-                console.log("error in placing order:",error)
-
+                console.log("error in placing order:",error);
+                
               }
               
             } else {

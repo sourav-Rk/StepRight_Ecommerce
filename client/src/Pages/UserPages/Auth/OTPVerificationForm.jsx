@@ -122,7 +122,7 @@ const OTPVerificationForm = () => {
 
       if (Object.keys(formData).length > 0) {
         response = await verifyOtp({ email, otp: otpValue });
-        message.success(response.message)
+        
       }
       else{
         response = await forgotVerifyOtp({email,otp});
