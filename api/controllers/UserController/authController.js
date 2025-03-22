@@ -213,7 +213,7 @@ export const verifyLogin = async (req,res) =>{
     }
 } 
 
-//logout
+//logout function
 export const logout = async (req,res) =>{
     try{
         res
