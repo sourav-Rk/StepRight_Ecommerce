@@ -8,7 +8,7 @@ import {
   cancelSingleItem,
   returnItem,
 } from "@/Api/User/orderApi";
-import { CheckCircle, Clock, Package, Truck, Home, Repeat } from "lucide-react";
+import { CheckCircle, Clock, Package, Truck, Home, Repeat , AlertCircle } from "lucide-react";
 import RefundPolicyComponent from "./RefundPolicyComponent";
 import ReturnReasonModal from "./ReturnReasonModal";
 
@@ -17,6 +17,11 @@ const ItemOrderDetails = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [returnEligibility, setReturnEligibility] = useState({
+    isEligible : false,
+    daysLeft : 0,
+    deliveryDate : null
+  });
 
   //to fetch the order details
   const fetchOrderDetails = async () => {
@@ -25,6 +30,26 @@ const ItemOrderDetails = () => {
       const response = await getItemDetails(orderId, itemId);
       console.log(response);
       setOrder(response.itemDetail);
+
+      //calculate return eligibility
+      if(response.itemDetail.itemDetails.status === "Delivered"){
+        const deliveryDate = new Date(response.itemDetail.deliveryDate);
+        const today = new Date();
+        const returnDeadLine = new Date(deliveryDate);
+        returnDeadLine.setDate(returnDeadLine.getDate() + 7);
+        console.log("delivery date ====>",deliveryDate);
+        console.log("today =====>",today);
+        console.log("returnDeadline=====>",returnDeadLine)
+
+        const daysLeft = Math.ceil((returnDeadLine - today) / (1000 * 60 * 60 * 24));
+        console.log("daysleft ====>",daysLeft);
+
+        setReturnEligibility({
+          isEligible : daysLeft>0,
+          daysLeft : daysLeft,
+          deliveryDate : deliveryDate
+        })
+      }
     } catch (error) {
       console.error("Error fetching order details:", error);
       message.error(error?.message || "Failed to fetch order details");
@@ -108,6 +133,14 @@ const ItemOrderDetails = () => {
       console.log("Error in returning the item", error);
       message.error(error?.message || "Failed to submit return request");
     }
+  };
+
+  // Calculate return deadline date
+  const getReturnDeadlineDate = (deliveryDate) => {
+    if (!deliveryDate) return null;
+    const deadline = new Date(deliveryDate);
+    deadline.setDate(deadline.getDate() + 7);
+    return formatDate(deadline);
   };
 
   //to handle return
@@ -398,6 +431,48 @@ const ItemOrderDetails = () => {
           )}
         </div>
       </div>
+
+       {/* Return Eligibility Banner - NEW SECTION */}
+       {order.itemDetails.status === "Delivered" && (
+        <div className={`mb-6 rounded-lg shadow-md p-4 border-l-4 flex items-center ${
+          returnEligibility.isEligible ? "bg-green-50 border-green-500" : "bg-orange-50 border-orange-500"
+        }`}>
+          <div className="mr-4">
+            {returnEligibility.isEligible ? (
+              <div className="bg-green-100 p-2 rounded-full">
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+            ) : (
+              <div className="bg-orange-100 p-2 rounded-full">
+                <AlertCircle className="h-8 w-8 text-orange-500" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className={`font-bold text-lg ${
+              returnEligibility.isEligible ? "text-green-800" : "text-orange-800"
+            }`}>
+              {returnEligibility.isEligible ? "Return Eligible" : "Return Period Expired"}
+            </h3>
+            <p className="text-gray-700">
+              {returnEligibility.isEligible 
+                ? `You have ${returnEligibility.daysLeft} day${returnEligibility.daysLeft !== 1 ? 's' : ''} left to return this item. Return deadline: ${getReturnDeadlineDate(order.deliveryDate)}`
+                : `The 7-day return period for this order has expired.`
+              }
+            </p>
+          </div>
+          {returnEligibility.isEligible && (
+            <Button
+              onClick={handleReturnOrder}
+              className="px-4 py-2 bg-black text-white hover:bg-gray-800 rounded-lg shadow-md transform transition-all duration-300 hover:-translate-y-1 flex items-center gap-2"
+            >
+              <Repeat className="w-4 h-4" />
+              Return Now
+            </Button>
+          )}
+        </div>
+      )}
+
 {/* Refund Information Section */}
 {((order.itemDetails.status === "Cancelled" && order.paymentMethod !== "cod" && order.paymentStatus !== "Failed") ||
   (order.itemDetails.status === "Returned"  && order.paymentStatus !== "Failed")) && (
@@ -435,7 +510,7 @@ const ItemOrderDetails = () => {
         )}
 
         {/* return button */}
-        {order.itemDetails.status === "Delivered" && (
+        {/* {order.itemDetails.status === "Delivered" && (
           <Button
             onClick={handleReturnOrder}
             className="px-6 py-3 bg-black text-white hover:bg-gray-800 rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 flex items-center gap-2"
@@ -443,7 +518,7 @@ const ItemOrderDetails = () => {
             <Repeat className="w-5 h-5" />
             Return Item
           </Button>
-        )}
+        )} */}
       </div>
 
       {/* Item Details Card */}
