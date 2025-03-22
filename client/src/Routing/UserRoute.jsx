@@ -26,6 +26,8 @@ import WishlistPage from "@/Pages/UserPages/WishlistPage/WishlistPage";
 import WalletComponent from "@/components/UserComponent/Wallet/Wallet";
 import WalletPage from "@/Pages/UserPages/WalletPage/WalletPage";
 import Invoice from "@/components/UserComponent/Order/Invoice";
+import AboutPage from "@/components/UserComponent/LandingPage/AboutPage";
+import FAQPage from "@/components/UserComponent/LandingPage/Faq";
 
 
 
@@ -65,6 +67,10 @@ const UserRoute = () => {
             
              {/* wallet */}
             <Route path="/wallet" element={<UserPrivate><WalletPage/></UserPrivate>}/>
+
+            {/* quick links */}
+            <Route path="/about" element={<AboutPage/>} />
+            <Route path="/faq" element={<FAQPage/>} />
 
             <Route path="*" element={<NotFound />} />
             
