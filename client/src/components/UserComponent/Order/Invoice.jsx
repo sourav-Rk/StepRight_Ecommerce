@@ -129,6 +129,69 @@ export default function Invoice({ order }) {
         </div>
       </div>
 
+       {/* Company Details */}
+    <div
+      style={{
+        padding: "24px 32px",
+        backgroundColor: "#f0f0f0",
+        borderBottom: "1px solid #eaeaea",
+        display: "flex",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: "16px",
+      }}
+    >
+      <div>
+        <h3
+          style={{
+            fontSize: "12px",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            color: "#888",
+            marginTop: 0,
+            marginBottom: "8px",
+          }}
+        >
+          From
+        </h3>
+        <p style={{ margin: "0 0 4px 0", fontWeight: 600, fontSize: "16px" }}>
+          StepRight Footwear Pvt. Ltd.
+        </p>
+        <p style={{ margin: 0, color: "#555", fontSize: "14px", lineHeight: "1.5" }}>
+          123 Fashion Street, Retail Hub<br />
+          Bangalore, Karnataka - 560001<br />
+          Email: contact@stepright.com<br />
+          Phone: +91 80 1234 5678
+        </p>
+      </div>
+      
+      <div>
+        <h3
+          style={{
+            fontSize: "12px",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            color: "#888",
+            marginTop: 0,
+            marginBottom: "8px",
+          }}
+        >
+          GST Details
+        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <span style={{ color: "#555", fontSize: "14px", fontWeight: 600 }}>GSTIN:</span>
+            <span style={{ fontWeight: 500, fontSize: "14px" }}>29AABCS1234A1Z5</span>
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <span style={{ color: "#555", fontSize: "14px", fontWeight: 600 }}>PAN:</span>
+            <span style={{ fontSize: "14px" }}>AABCS1234A</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
       {/* Invoice Details */}
       <div style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "32px" }}>
         {/* Top Section */}
