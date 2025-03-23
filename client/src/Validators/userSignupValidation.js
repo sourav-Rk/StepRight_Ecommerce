@@ -3,6 +3,7 @@ import Joi from "joi";
 //validate user signup
 const userSchema = Joi.object({
   firstName: Joi.string()
+    .trim()
     .pattern(/^[A-Za-z]+$/)
     .min(2)
     .max(50)
@@ -15,6 +16,7 @@ const userSchema = Joi.object({
     }),
 
   lastName: Joi.string()
+    .trim()
     .pattern(/^[A-Za-z]+$/)
     .min(1)
     .max(50)
