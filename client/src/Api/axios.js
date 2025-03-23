@@ -31,8 +31,11 @@ axiosInstance.interceptors.response.use(
      
       store.dispatch(UserLogout());
       message.error("Your account has been blocked. Redirecting to login...");
-      
-      window.location.href = "/login";
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      },1000);
+     
     }
     return Promise.reject(error);
   }
