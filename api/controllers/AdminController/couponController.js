@@ -4,7 +4,7 @@ import CouponDB from "../../Models/couponSchema.js";
 //to fetch the coupons
 export const getCoupons = async(req, res, next) =>{
     try{
-        const coupons = await CouponDB.find({});
+        const coupons = await CouponDB.find({}).sort({createdAt : -1});
         return res.status(200).json({message :"Coupons fetched successfully",coupons});
     }
     catch(error){
