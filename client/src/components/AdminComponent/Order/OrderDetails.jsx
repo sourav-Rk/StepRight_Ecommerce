@@ -370,7 +370,7 @@ const OrderDetails = () => {
                             </span>
                           ) : (
                             <button
-                              onClick={() => confirmApprovePayment(order._id)}
+                              onClick={() => confirmApprovePayment(order.orderId)}
                               className="bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-1 rounded-md shadow-sm transition-all duration-200"
                             >
                               Confirm Payment Received

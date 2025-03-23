@@ -411,10 +411,10 @@ const UserOrders = () => {
             </div>
 
             {/* Full Order Cancel Button */}
-            {(order.status === "Pending" || order.status === "Processing") &&
-              !order.items.some(
+            {
+              order.items.every(
                 (item) =>
-                  item.status === "Cancelled" || item.status === "Returned"
+                  item.status === "Pending" || item.status === "Processing"
               ) && (
                 <div className="p-5 bg-slate-50 border-t">
                   <Button
