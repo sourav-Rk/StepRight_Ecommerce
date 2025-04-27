@@ -44,6 +44,7 @@ const handleRefreshToken = async(req, res, next, refreshToken) =>{
             next();
         }
         catch(error){
+            console.log(error)
             res.status(401).json({message : "Refresh Token is invalid"})
         }
     }

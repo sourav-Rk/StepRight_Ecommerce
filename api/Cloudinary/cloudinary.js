@@ -18,7 +18,7 @@ const storage = new CloudinaryStorage({
     params: {
       folder: "secure-uploads", // Specify the folder in Cloudinary
       resource_type: "image", // Automatically detect file type
-      allowed_formats: ["jpg", "png", "jpeg", "gif"], // Optional: restrict file types
+      allowed_formats: ["jpg", "png", "jpeg", "gif"], 
     },
 });
   
