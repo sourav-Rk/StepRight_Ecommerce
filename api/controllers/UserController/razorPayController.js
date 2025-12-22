@@ -1,8 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { razorpay } from "../../config/RazorPay.js";
 import { errorHandler } from "../../Middleware/error.js";
 import crypto from "crypto";
-import dotenv from "dotenv";
-dotenv.config();
+
 
 //make payment
 export const makePayment = async (req, res, next) => {
