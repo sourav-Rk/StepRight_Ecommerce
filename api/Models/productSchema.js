@@ -71,7 +71,6 @@ productSchema.virtual("totalStock").get(function () {
 //pre-save hook to calculate the saleprice for each variant
 productSchema.pre("save", async function (next) {
   try {
-    const Category = mongoose.model("Category");
     const categoryDoc = await CategoryDB.findById(this.category);
     const categoryOffer = categoryDoc ? categoryDoc.offer : 0;
     const productOffer = this.offer;

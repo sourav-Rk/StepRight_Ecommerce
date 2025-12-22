@@ -4,6 +4,7 @@ import { errorHandler } from "../../Middleware/error.js";
 
 export const advancedSearchProducts = async (req, res, next) => {
   try {
+    console.log("hitttt");
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 6;
     const skip = (page - 1) * limit;
@@ -95,14 +96,14 @@ export const advancedSearchProducts = async (req, res, next) => {
           from: "reviews",
           localField: "_id",
           foreignField: "productId",
-          as: "reviews"
-        }
+          as: "reviews",
+        },
       },
       {
         $addFields: {
           reviewCount: { $size: "$reviews" },
-          averageRating: { $avg: "$reviews.rating" }
-        }
+          averageRating: { $avg: "$reviews.rating" },
+        },
       },
       {
         $addFields: {
@@ -130,9 +131,9 @@ export const advancedSearchProducts = async (req, res, next) => {
             $cond: [
               { $eq: ["$averageRating", null] },
               0,
-              { $round: ["$averageRating", 1] }
-            ]
-          }
+              { $round: ["$averageRating", 1] },
+            ],
+          },
         },
       },
     ];

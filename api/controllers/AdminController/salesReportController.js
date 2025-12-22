@@ -451,19 +451,15 @@ export const downloadSalesReportExcel = async (req, res, next) => {
   }
 };
 
-
 //sales analytics
 export const getSalesAnalytics = async (req, res) => {
   try {
-    
     const { filter, startDate, endDate } = req.query;
 
-    
     const validFilters = ["daily", "weekly", "monthly", "yearly"];
     if (!validFilters.includes(filter)) {
       return res.status(400).json({ error: "Invalid filter parameter" });
     }
-
 
     const dateFilter = {};
     if (startDate && endDate) {
@@ -473,7 +469,7 @@ export const getSalesAnalytics = async (req, res) => {
       };
     }
 
-    //  Sales Data Aggregation 
+    //  Sales Data Aggregation
     const salesData = await orderDB.aggregate([
       { $match: dateFilter },
       {
@@ -501,16 +497,16 @@ export const getSalesAnalytics = async (req, res) => {
       { $unwind: "$product" },
       {
         $lookup: {
-          from: "categories", 
+          from: "categories",
           localField: "product.category",
           foreignField: "_id",
           as: "category",
         },
       },
-      { $unwind: "$category" }, 
+      { $unwind: "$category" },
       {
         $group: {
-          _id: "$category.name", 
+          _id: "$category.name",
           totalSales: { $sum: "$items.quantity" },
           revenue: {
             $sum: { $multiply: ["$items.quantity", "$items.productPrice"] },
@@ -521,7 +517,7 @@ export const getSalesAnalytics = async (req, res) => {
       { $limit: 5 },
     ]);
 
-    //  Best Selling Brands 
+    //  Best Selling Brands
     const brands = await orderDB.aggregate([
       { $match: dateFilter },
       { $unwind: "$items" },
@@ -536,16 +532,16 @@ export const getSalesAnalytics = async (req, res) => {
       { $unwind: "$product" },
       {
         $lookup: {
-          from: "brands", 
+          from: "brands",
           localField: "product.brand",
           foreignField: "_id",
           as: "brandInfo",
         },
       },
-      { $unwind: "$brandInfo" }, 
+      { $unwind: "$brandInfo" },
       {
         $group: {
-          _id: "$brandInfo.name", 
+          _id: "$brandInfo.name",
           totalSales: { $sum: "$items.quantity" },
           revenue: {
             $sum: { $multiply: ["$items.quantity", "$items.productPrice"] },
@@ -598,7 +594,7 @@ export const getSalesAnalytics = async (req, res) => {
           totalSales: { $sum: "$items.quantity" }, // This is the selling count (units sold)
         },
       },
-      { $sort: { totalSales: -1 } }, 
+      { $sort: { totalSales: -1 } },
       { $limit: 7 },
     ]);
 

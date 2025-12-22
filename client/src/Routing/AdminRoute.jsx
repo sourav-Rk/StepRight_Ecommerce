@@ -28,22 +28,22 @@ const AdminRoute = () => {
 
         <Routes>
             <Route path="/login" element={<AdminLoginPrivate><LoginPage /></AdminLoginPrivate>}/>
-            <Route path="/dashboard" element={<AdminPrivate><DashboardPage/></AdminPrivate>}/>
-            <Route path="/customers" element={<AdminPrivate><CustomerPage/></AdminPrivate>}/>
-            <Route path="/category" element ={<AdminPrivate><AddCategoryPage/></AdminPrivate>} />
-            <Route path="/brands" element={<AdminPrivate><BrandPage/></AdminPrivate>}/>
-            <Route path="/add/products" element={<AdminPrivate><ProductPage/></AdminPrivate>} />
-            <Route path="products" element={<AdminPrivate><ProductListPage/></AdminPrivate>} />
-            <Route path="/size" element={<AdminPrivate><SizePage/></AdminPrivate>} />
-            <Route path="/edit-product/:id" element={<AdminPrivate><EditProductPage/></AdminPrivate>}/>
+            <Route path="/dashboard" element={<AdminPrivate allowedRoles={["admin"]} children={<DashboardPage/>}/>}/>
+            <Route path="/customers" element={<AdminPrivate allowedRoles={["admin"]} children={<CustomerPage/>}/>}/>
+            <Route path="/category" element ={<AdminPrivate allowedRoles={["admin"]} children={<AddCategoryPage/>}/>} />
+            <Route path="/brands" element={<AdminPrivate allowedRoles={["admin"]} children={<BrandPage/>}/>}/>
+            <Route path="/add/products" element={<AdminPrivate allowedRoles={["admin"]} children={<ProductPage/>}/>} />
+            <Route path="products" element={<AdminPrivate allowedRoles={["admin"]} children={<ProductListPage/>}/>} />
+            <Route path="/size" element={<AdminPrivate allowedRoles={["admin"]} children={<SizePage/>}/>} />
+            <Route path="/edit-product/:id" element={<AdminPrivate allowedRoles={["admin"]} children={<EditProductPage/>}/>}/>
             
-            <Route path="/orders" element={<AdminPrivate><OrderListPage/></AdminPrivate>}/>
-            <Route path="/orders/:orderId" element={<AdminPrivate><OrderDetailsPage/></AdminPrivate>}/>
-            <Route path="/add/coupon" element={<AdminPrivate><AddCouponPage/></AdminPrivate>}/>
-            <Route path="/coupon" element={<AdminPrivate><CouponListPage/></AdminPrivate>}/>
-            <Route path="/sales-report" element={<AdminPrivate><SalesPage/></AdminPrivate>}/>
-            <Route path="/dashboard" element={<AdminPrivate><DashboardPage/></AdminPrivate>} />
-            <Route path="/reviews" element={<AdminPrivate><ReviewPage/></AdminPrivate>}/>
+            <Route path="/orders" element={<AdminPrivate allowedRoles={["admin"]} children={<OrderListPage/>}/>}/>
+            <Route path="/orders/:orderId" element={<AdminPrivate allowedRoles={["admin"]} children={<OrderDetailsPage/>}/>}/>
+            <Route path="/add/coupon" element={<AdminPrivate allowedRoles={["admin"]} children={<AddCouponPage/>}/>}/>
+            <Route path="/coupon" element={<AdminPrivate allowedRoles={["admin"]} children={<CouponListPage/>}/>}/>
+            <Route path="/sales-report" element={<AdminPrivate children={<SalesPage/>} />}/>
+            <Route path="/dashboard" element={<AdminPrivate children={<DashboardPage/>}/>} />
+            <Route path="/reviews" element={<AdminPrivate children={<ReviewPage/>}/>}/>
 
          
             <Route path="*" element={<NotFound />} />          

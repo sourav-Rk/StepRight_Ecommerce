@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
 export const verifyAdmin = async (req, res, next) =>{
-    const accessToken = req?.cookies?.adminAccessToken;
-    const refreshToken = req?.cookies?.adminRefreshToken;
+    const accessToken = req?.cookies?.accessToken;
+    const refreshToken = req?.cookies?.refreshToken;
 
     if(accessToken){
         try{
@@ -32,7 +32,7 @@ const handleRefreshToken = async(req, res, next, refreshToken) =>{
             const decodeRefresh = jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET);
             const newAccessToken = jwt.sign({id : decodeRefresh?.id, role : decodeRefresh.role}, process.env.ACCESS_TOKEN_SECRET, {expiresIn : "15m"});
 
-            res.cookie("adminAccessToken",newAccessToken,{
+            res.cookie("accessToken",newAccessToken,{
                 httpOnly : true,
                 secure   : false,
                 sameSite : "Lax",

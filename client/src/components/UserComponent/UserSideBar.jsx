@@ -32,7 +32,7 @@ const UserSideBar = () => {
       try {
         const response = await logout();
         message.success(response.message);
-        navigate('/');
+        navigate('/login');
         dispatch(UserLogout());
       } catch (error) {
         console.log("error in logout",error)

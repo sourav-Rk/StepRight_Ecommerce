@@ -110,7 +110,7 @@ const AddressForm = ({ name }) => {
   return (
     <Card className="w-full max-w-2xl mx-auto my-8 mt-0">
       <CardHeader className="flex justify-between items-center">
-        <CardTitle className="text-2xl font-bold">{name}</CardTitle>
+        <CardTitle className="text-2xl font-bold">{isEditing ? "Edit Address" : name}</CardTitle>
         {id && (
           <Button
             variant="outline"

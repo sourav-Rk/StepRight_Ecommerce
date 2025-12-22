@@ -6,9 +6,9 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin } from "@/Api/Admin/authApi";
 import { useDispatch } from "react-redux";
-import { AdminLogin } from "@/Redux/adminSlice";
 import { message } from "antd";
 import "antd/dist/reset.css"; 
+import { UserLogin } from "@/Redux/userSlice";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +39,7 @@ const Login = () => {
 
         message.success(response.message);
 
-        dispatch(AdminLogin({name : response.adminName}));
+        dispatch(UserLogin({name : response.adminName,role : response.role}));
 
         navigate("/admin/dashboard")
       }

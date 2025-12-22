@@ -25,7 +25,7 @@ const GoogleAuthButton = () => {
           navigate('/')
         }
         message.success(response.message)
-        dispatch(UserLogin({name:result?.user.displayName,email:result?.user.email}))
+        dispatch(UserLogin({name:result?.user.displayName,email:result?.user.email,role : "user"}))
     }
     catch(err){
         message.error(err.message)

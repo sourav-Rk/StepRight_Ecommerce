@@ -21,7 +21,6 @@ export const getSneakerProducts = async (req, res) => {
       .populate("category", "name")
       .populate("brand", "name");
 
-
     return res.status(200).json({
       message: "Products fetched successfully",
       products,
@@ -39,7 +38,6 @@ export const getCategoryToDisplay = async (req, res, next) => {
   try {
     const categoryNames = ["Sneaker", "High Tops", "Running Shoe"];
 
-  
     const categories = await CategoryDB.find({ name: { $in: categoryNames } });
 
     // Sort the categories in the  order
@@ -47,7 +45,6 @@ export const getCategoryToDisplay = async (req, res, next) => {
       categories.find((category) => category.name === name)
     );
 
- 
     const filteredCategories = sortedCategories.filter((category) => category);
 
     res.status(200).json({ categories: filteredCategories });

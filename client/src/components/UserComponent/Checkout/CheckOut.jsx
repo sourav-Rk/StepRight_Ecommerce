@@ -40,7 +40,7 @@ export default function CheckoutPage() {
   const fetchAddresses = async () => {
     try {
       const addressResponse = await getAddresses();
-     
+
       const isDefaultAddress = addressResponse.addresses.find(
         (x) => x.isDefault
       );
@@ -168,6 +168,7 @@ export default function CheckoutPage() {
       try {
         const paymentData = {
           amount: total,
+          couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
 
         const razorpayOrder = await makePayment(paymentData);
@@ -193,19 +194,15 @@ export default function CheckoutPage() {
                 totalAmount: total,
                 couponCode: appliedCoupon ? appliedCoupon.code : null,
               };
-              try{
+              try {
                 const response = await placeOrder(orderData);
-              message.success(response.message);
-              setOrderDetails(response.newOrder);
-              setOrderSuccess(true);
-
-              }catch(error){
-
+                message.success(response.message);
+                setOrderDetails(response.newOrder);
+                setOrderSuccess(true);
+              } catch (error) {
                 message.error(error?.message);
-                console.log("error in placing order:",error);
-                
+                console.log("error in placing order:", error);
               }
-              
             } else {
               message.error("Payment verification failed");
             }
@@ -226,28 +223,29 @@ export default function CheckoutPage() {
         const rzp = new window.Razorpay(options);
 
         //to handle payment failure
-        rzp.on("payment.failed", async(response) => {
-          console.log("Payment failed response:",response);
+        rzp.on("payment.failed", async (response) => {
+          console.log("Payment failed response:", response);
           message.error("Payment failed. Please try again");
 
           const orderData = {
-            paymentMethod : selectedPayment,
-            deliveryAddress : selectedAddressObj,
+            paymentMethod: selectedPayment,
+            deliveryAddress: selectedAddressObj,
             subtotal,
             tax,
             discountAmount,
-            paymentStatus : "Failed",
-            totalAmount : total,
-            couponCode : appliedCoupon ? appliedCoupon.code : null,
-          }
+            paymentStatus: "Failed",
+            totalAmount: total,
+            couponCode: appliedCoupon ? appliedCoupon.code : null,
+          };
 
-          try{
+          try {
             const failureResponse = await placeOrder(orderData);
-            message.info("Order placed with payment status 'failed' . You can retry the payment later .");
+            message.info(
+              "Order placed with payment status 'failed' . You can retry the payment later ."
+            );
             setOrderDetails(failureResponse.newOrder);
             setOrderSuccess(true);
-          }
-          catch(error){
+          } catch (error) {
             message.error(error?.message);
           }
         });
@@ -255,11 +253,11 @@ export default function CheckoutPage() {
         rzp.open();
       } catch (error) {
         message.error(error?.message);
-        console.log("error in ordr",error);
+        console.log("error in ordr", error);
       }
     }
   };
-   
+
   // If order is successful, show the OrderSuccessPage component with order details
   if (orderSucces && orderDetails) {
     return (

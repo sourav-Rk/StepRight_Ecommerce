@@ -14,25 +14,22 @@ export const getUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        message: "user details fetched successfully",
-        userDetails: {
-          firstName: userDetails.firstName,
-          lastName: userDetails.lastName,
-          email: userDetails.email,
-          phone: userDetails.phone,
-          usedCoupons: userDetails.usedCoupons,
-          walletBalance: walletBalance.balance,
-          referralCode: userDetails.referralCode,
-        },
-      });
+    return res.status(200).json({
+      message: "user details fetched successfully",
+      userDetails: {
+        firstName: userDetails.firstName,
+        lastName: userDetails.lastName,
+        email: userDetails.email,
+        phone: userDetails.phone,
+        usedCoupons: userDetails.usedCoupons,
+        walletBalance: walletBalance.balance,
+        referralCode: userDetails.referralCode,
+      },
+    });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 //Edit the profile
 export const editProfile = async (req, res, next) => {

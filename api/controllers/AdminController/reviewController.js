@@ -1,5 +1,5 @@
 import ReviewDB from "../../Models/reviewSchema.js";
-import { errorHandler } from '../../Middleware/error.js'
+import { errorHandler } from "../../Middleware/error.js";
 
 export const getAdminReviews = async (req, res, next) => {
   try {
@@ -28,26 +28,29 @@ export const getAdminReviews = async (req, res, next) => {
 
     // Column sorting
     if (req.query.sortField && req.query.sortOrder) {
-      sortStage = { [req.query.sortField]: req.query.sortOrder === "asc" ? 1 : -1 };
+      sortStage = {
+        [req.query.sortField]: req.query.sortOrder === "asc" ? 1 : -1,
+      };
     }
 
     // Filters
     const matchStage = {};
     if (req.query.search) {
-        const searchRegex = new RegExp(req.query.search, "i");
-        matchStage.$or = [
-          { reviewText: searchRegex },
-          { "user.name": searchRegex },
-          { "product.name": searchRegex }
-        ];
-      }
-    if (req.query.rating) matchStage.rating = { $gte: parseInt(req.query.rating) };
+      const searchRegex = new RegExp(req.query.search, "i");
+      matchStage.$or = [
+        { reviewText: searchRegex },
+        { "user.name": searchRegex },
+        { "product.name": searchRegex },
+      ];
+    }
+    if (req.query.rating)
+      matchStage.rating = { $gte: parseInt(req.query.rating) };
     if (req.query.search) {
       const searchRegex = new RegExp(req.query.search, "i");
       matchStage.$or = [
         { reviewText: searchRegex },
         { "user.name": searchRegex },
-        { "product.name": searchRegex }
+        { "product.name": searchRegex },
       ];
     }
 
@@ -73,7 +76,7 @@ export const getAdminReviews = async (req, res, next) => {
       { $unwind: "$product" },
       { $match: matchStage },
       { $sort: sortStage },
-    
+
       { $skip: skip },
       { $limit: limit },
       {

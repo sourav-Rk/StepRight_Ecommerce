@@ -37,10 +37,11 @@ const userSchema = Joi.object({
     }),
 
   phone: Joi.string()
-    .pattern(/^\d{10}$/)
+    .pattern(/^[6-9]\d{9}$/)
     .required()
     .messages({
-      "string.pattern.base": "Phone number must be at least 10 digits.",
+      "string.pattern.base":
+        "Phone number must be a valid Indian mobile number (10 digits, starts with 6-9).",
       "string.empty": "Phone number is required.",
     }),
 

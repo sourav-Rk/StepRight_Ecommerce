@@ -39,7 +39,7 @@ categorySchema.pre("updateOne", async function (next) {
       // Get the Product model (avoids circular dependency issues)
       const ProductDB = mongoose.model("Product");
 
-      // Find all products in this category.
+      // Find all products in this category. 
       const products = await ProductDB.find({ category: categoryId });
 
       // For each product, call save() so that its pre-save hook recalculates salePrice.

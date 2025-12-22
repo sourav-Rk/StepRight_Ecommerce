@@ -49,24 +49,24 @@ const UserRoute = () => {
             <Route path="/category/:categoryId" element={<CategoryProductPage/>}/>
             <Route path="/shop-all" element={<CategoryProductPage/>}/>
             <Route path="/product-detail/:id" element={<ProductDetailPage/>}/>
-            <Route path="/wishlist" element={<UserPrivate><WishlistPage/></UserPrivate>}/>
+            <Route path="/wishlist" element={<UserPrivate allowedRoles={["user"]} children={<WishlistPage/>}/>}/>
             
             {/* account and address */}
-            <Route path="/account" element={<UserPrivate><AccountPage/></UserPrivate>} />
-            <Route path="/address" element={<UserPrivate><AddressListPage/></UserPrivate>} />
-            <Route path="/address/add" element={<UserPrivate><AddressPage/></UserPrivate>}/>
-            <Route path="/address/:id"element={<UserPrivate><AddressPage/></UserPrivate>}/>
+            <Route path="/account" element={<UserPrivate allowedRoles={["user"]} children={<AccountPage/>}/>}/>
+            <Route path="/address" element={<UserPrivate allowedRoles={["user"]} children={<AddressListPage/>}/>} />
+            <Route path="/address/add" element={<UserPrivate allowedRoles={["user"]} children={<AddressPage/>}/>}/>
+            <Route path="/address/:id"element={<UserPrivate allowedRoles={["user"]} children={<AddressPage/>}/>}/>
             
             {/* orders and cart */}
-            <Route path="/cart" element={<UserPrivate><CartPage/></UserPrivate>}/>
-            <Route path="/checkout" element={<UserPrivate><CheckOutPage/></UserPrivate>} />
-            <Route path="/orders" element={<UserPrivate><UserOrdersPage/></UserPrivate>}/>
-            <Route path="/orders/:orderId" element={<UserPrivate><OrderDetailPage/></UserPrivate>} />
-            <Route path="/orders/:orderId/item/:itemId" element={<UserPrivate><ItemDetailPage/></UserPrivate>} />
-            <Route path="/orders/invoice/:orderId" element={<UserPrivate><Invoice/></UserPrivate>}/>
+            <Route path="/cart" element={<UserPrivate allowedRoles={["user"]} children={<CartPage/>}/>}/>
+            <Route path="/checkout" element={<UserPrivate allowedRoles={["user"]} children={<CheckOutPage/>}/>} />
+            <Route path="/orders" element={<UserPrivate allowedRoles={["user"]} children={<UserOrdersPage/>}/>}/>
+            <Route path="/orders/:orderId" element={<UserPrivate allowedRoles={["user"]} children={<OrderDetailPage/>}/>} />
+            <Route path="/orders/:orderId/item/:itemId" element={<UserPrivate allowedRoles={["user"]}children={<ItemDetailPage/>}/>} />
+            <Route path="/orders/invoice/:orderId" element={<UserPrivate allowedRoles={["user"]} children={<Invoice/>}/>}/>
             
              {/* wallet */}
-            <Route path="/wallet" element={<UserPrivate><WalletPage/></UserPrivate>}/>
+            <Route path="/wallet" element={<UserPrivate allowedRoles={["user"]} children={<WalletPage/>}/>}/>
 
             {/* quick links */}
             <Route path="/about" element={<AboutPage/>} />

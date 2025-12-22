@@ -45,7 +45,7 @@ export const getWallet = async (req, res, next) => {
           },
         },
       },
-      
+
       {
         $addFields: {
           transactionCount: { $size: "$transactions" },

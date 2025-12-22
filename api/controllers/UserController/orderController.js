@@ -6,7 +6,6 @@ import { refreshTokenDecoder } from "../../utils/jwtToken/decodeRefreshToken.js"
 import usersDB from "../../Models/userSchema.js";
 import CouponDB from "../../Models/couponSchema.js";
 import dayjs from "dayjs";
-import walletDB from "../../Models/walletSchema.js";
 
 //to get all orders made by a user
 export const getUserOrders = async (req, res, next) => {
@@ -18,7 +17,7 @@ export const getUserOrders = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
 
-    const totalOrders = await orderDB.countDocuments({userId});
+    const totalOrders = await orderDB.countDocuments({ userId });
 
     const orders = await orderDB
       .find({ userId })
@@ -123,6 +122,12 @@ export const placeOrder = async (req, res, next) => {
   const user = await usersDB.findById(userId);
   if (!user) return next(errorHandler(404, "User not found"));
 
+  let calculatedSubtotal = 0;
+
+  items.forEach((item) => {
+    calculatedSubtotal += item.productPrice * item.quantity;
+  });
+
   let coupon = null;
   if (couponCode) {
     coupon = await CouponDB.findOne({ code: couponCode });
@@ -132,6 +137,37 @@ export const placeOrder = async (req, res, next) => {
     if (user.usedCoupons.includes(coupon._id)) {
       return next(errorHandler(400, "You have already used this coupon"));
     }
+
+    if (calculatedSubtotal < coupon.minimumPurchase) {
+      return errorHandler(400, "Subtotal is less than coupon minimum purchase");
+    }
+  }
+
+  let calculatedDiscount = 0;
+  if (coupon) {
+    if (coupon.discountType === "percentage") {
+      calculatedDiscount = (calculatedSubtotal * coupon.discountValue) / 100;
+    } else {
+      calculatedDiscount = coupon.discountValue;
+    }
+    calculatedDiscount = Math.min(calculatedDiscount, calculatedSubtotal);
+  }
+
+  const TAX_RATE = 0.12;
+  const calculatedTax = calculatedSubtotal * TAX_RATE;
+
+  const calculatedTotal = Math.round(
+    calculatedSubtotal - calculatedDiscount + calculatedTax
+  );
+
+  if (
+    Number(subtotal) !== Math.round(calculatedSubtotal) ||
+    Number(discountAmount) !== Math.round(calculatedDiscount) ||
+    Number(totalAmount) !== calculatedTotal
+  ) {
+    return next(
+      errorHandler(400, "Order amount mismatch. Please refresh and try again")
+    );
   }
 
   const newOrderDetails = {
@@ -383,29 +419,31 @@ export const updatePaymentStatus = async (req, res, next) => {
 };
 
 //update the payment status of cod
-export const updatePaymentCod = async(req,res,next) => {
-   try{
-     const {orderId} = req.body;
-     if(!orderId) return next(errorHandler(400,"OrderId is required"));
+export const updatePaymentCod = async (req, res, next) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) return next(errorHandler(400, "OrderId is required"));
 
-     const order = await orderDB.findOne({orderId : orderId});
-     if(!order) return next(errorHandler(404,"Order not found"));
+    const order = await orderDB.findOne({ orderId: orderId });
+    if (!order) return next(errorHandler(404, "Order not found"));
 
-     if(order.paymentStatus !== "Pending") return next(errorHandler(400,"Payment status cannot be updated"));
+    if (order.paymentStatus !== "Pending")
+      return next(errorHandler(400, "Payment status cannot be updated"));
 
-     const updateOrder = await orderDB.updateOne(
-      {orderId},
+    const updateOrder = await orderDB.updateOne(
+      { orderId },
       {
-        paymentStatus : "paid",
+        paymentStatus: "paid",
       },
-      {new : true}
-     );
-     return res.status(200).json({success:true, message : "Payment status updated"});
-   }
-   catch(error){
-       return next(errorHandler(500,"Something went wrong"));
-   }
-}
+      { new: true }
+    );
+    return res
+      .status(200)
+      .json({ success: true, message: "Payment status updated" });
+  } catch (error) {
+    return next(errorHandler(500, "Something went wrong"));
+  }
+};
 
 //to return the whole order
 

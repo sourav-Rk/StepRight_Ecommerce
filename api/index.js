@@ -18,9 +18,15 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use((req,res,next) =>{
+  console.log(req.method,req.url);
+  next()
+})
+
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("mongodb connected"))
 .catch((error)=>console.log(error))
+
 
 app.use('/api/users', UserRoute)
 app.use('/api/admin', AdminRoute)
@@ -28,6 +34,8 @@ app.use('/api/admin', AdminRoute)
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
+
+  console.log(err)
 
   return res.status(statusCode).json({
       success: false,

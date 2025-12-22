@@ -3,15 +3,18 @@ import { useCookies } from "react-cookie";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
-const UserLoginPrivate = ({children}) => {
-    
-    const {user} = useSelector((state)=>state.user)
+const UserLoginPrivate = ({ children }) => {
+  const { user } = useSelector((state) => state.user);
 
-    if(user)
-    {
-        return <Navigate to={"/"}/>
-    }
-    return children;
-}
+   if (user && user.role !== "user") {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
-export default UserLoginPrivate
+  if (user && user?.role === "user") {
+    return <Navigate to={"/"} />;
+  }
+
+  return children;
+};
+
+export default UserLoginPrivate;

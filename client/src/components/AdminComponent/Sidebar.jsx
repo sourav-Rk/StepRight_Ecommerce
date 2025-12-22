@@ -16,8 +16,8 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { AdminLogout } from '@/Redux/adminSlice';
 import axiosInstance from '@/Api/axios';
+import { UserLogout } from '@/Redux/userSlice';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -26,7 +26,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const admin = useSelector((state)=>state.admin.admin)
+  const admin = useSelector((state)=>state.user.user)
 
   useEffect(() => {
     if (!admin) {
@@ -38,7 +38,7 @@ const Sidebar = () => {
   const handleLogout = async() => {
     try{
       await axiosInstance.post("/admin/logout");
-      dispatch(AdminLogout()); 
+      dispatch(UserLogout()); 
     }
     catch(error){
       console.log("failed to logout");

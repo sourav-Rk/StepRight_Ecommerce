@@ -1,16 +1,19 @@
-import React  from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
-const AdminPrivate = ({children}) =>{
-    const {admin} = useSelector((state)=>state.admin);
+const AdminPrivate = ({ children, allowedRoles="admin" }) => {
+  const { user } = useSelector((state) => state.user);
 
-    if(admin)
-    {
-        return children;
-    }
+  if (user &&!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
-    return <Navigate to={"/admin/login"} />
-}
+  if (user) {
+    return children;
+  }
 
-export default AdminPrivate
+  return <Navigate to={"/admin/login"} />;
+};
+
+export default AdminPrivate;

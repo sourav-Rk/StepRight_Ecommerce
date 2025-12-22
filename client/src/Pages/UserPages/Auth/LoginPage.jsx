@@ -68,7 +68,7 @@ export default function LoginPage() {
       const response = await loginUser(formData);
       message.success(response.message);
 
-      dispatch(UserLogin({ name: response?.userName }));
+      dispatch(UserLogin({ name: response?.userName,role : response?.role }));
       
       // Add a flourish animation before navigation
       const formElement = document.querySelector("form");

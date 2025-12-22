@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 
 export const verifyUser = async (req, res, next) => {
-  const accessToken = req?.cookies?.userAccessToken;
-  const refreshToken = req?.cookies?.userRefreshToken;
+  const accessToken = req?.cookies?.accessToken;
+  const refreshToken = req?.cookies?.refreshToken;
 
   if (accessToken) {
     try {
@@ -25,7 +25,6 @@ export const verifyUser = async (req, res, next) => {
   }
 };
 
-
 const handleRefreshToken = async (req, res, next, refreshToken) => {
   if (refreshToken) {
     try {
@@ -39,7 +38,7 @@ const handleRefreshToken = async (req, res, next, refreshToken) => {
         { expiresIn: "15m" }
       );
 
-      res.cookie("userAccessToken", newAccessToken, {
+      res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
         secure: false,
         sameSite: "Lax",

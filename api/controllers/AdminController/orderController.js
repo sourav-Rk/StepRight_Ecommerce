@@ -2,23 +2,22 @@ import orderDB from "../../Models/orderSchema.js";
 import { errorHandler } from "../../Middleware/error.js";
 import walletDB from "../../Models/walletSchema.js";
 
-//to get all orders made by the user 
+//to get all orders made by the user
 export const getAllOrders = async (req, res, next) => {
   try {
-    
-    const { page = 1, limit = 10, search = '' } = req.query;
-    
+    const { page = 1, limit = 10, search = "" } = req.query;
+
     const skip = (page - 1) * limit;
-    
+
     // Create search filter
     const filter = {
       $or: [
-        { orderId: { $regex: search, $options: 'i' } },
-        { 'userId.firstName': { $regex: search, $options: 'i' } },
-        { 'userId.email': { $regex: search, $options: 'i' } },
-        { 'userId.phone': { $regex: search, $options: 'i' } },
-        { 'deliveryAddress.fullname': { $regex: search, $options: 'i' } }
-      ]
+        { orderId: { $regex: search, $options: "i" } },
+        { "userId.firstName": { $regex: search, $options: "i" } },
+        { "userId.email": { $regex: search, $options: "i" } },
+        { "userId.phone": { $regex: search, $options: "i" } },
+        { "deliveryAddress.fullname": { $regex: search, $options: "i" } },
+      ],
     };
 
     const totalOrders = await orderDB.countDocuments(filter);

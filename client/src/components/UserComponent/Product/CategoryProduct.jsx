@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { advancedSearch } from "@/Api/User/productApi";
-import { ChevronDown } from "lucide-react";
 import { message } from "antd";
 import SearchBar from "./SearchBar";
 import FilterPanel from "./FilterPanel";
 import Filter from "./Filter";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const CategoryProduct = () => {
   const { categoryId } = useParams();
@@ -24,6 +24,8 @@ const CategoryProduct = () => {
   const [sortBy, setSortBy] = useState("newArrivals");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const debouncedSearchTerm = useDebounce(searchTerm, 600);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilter, setShowFilter] = useState(false);
 
@@ -34,29 +36,37 @@ const CategoryProduct = () => {
     const searchParam = searchParams.get("search") || "";
     setSortBy(sortByParam);
     setCurrentPage(pageParam);
-    setSearchTerm(searchParam); 
+    setSearchTerm(searchParam);
   }, [searchParams]);
+
+  useEffect(() => {
+    updateQueryParams({
+      search: debouncedSearchTerm,
+      page: 1,
+    });
+  }, [debouncedSearchTerm]);
 
   const fetchAdvancedProducts = async () => {
     setLoading(true);
     try {
       const categoriesParam = searchParams.get("categories");
+      const sortByParam = searchParams.get("sortBy");
       const brandsParam = searchParams.get("brands");
       const pageParam = parseInt(searchParams.get("page")) || 1;
       const searchParam = searchParams.get("search") || "";
       const limit = productsPerPage;
 
       const response = await advancedSearch({
-        sortBy,
+        sortBy: sortByParam,
         page: pageParam,
         limit,
         categoryId,
         categories: categoriesParam,
         brands: brandsParam,
-        name: searchParam, 
+        name: searchParam,
       });
 
-      console.log("products:",response)
+      console.log("products:", response);
       if (response.products.length > 0 && response.products[0].category) {
         setCategoryName(response.products[0].category);
       }
@@ -74,7 +84,7 @@ const CategoryProduct = () => {
   // Fetch products when params change
   useEffect(() => {
     fetchAdvancedProducts();
-  }, [categoryId, searchParams]);   
+  }, [categoryId, searchParams]);
 
   const updateQueryParams = (paramsObj) => {
     const newParams = new URLSearchParams(searchParams);
@@ -96,9 +106,7 @@ const CategoryProduct = () => {
   };
 
   const handleSearchChange = (e) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
-    updateQueryParams({ search: newSearchTerm, page: 1 });
+    setSearchTerm(e.target.value);
   };
 
   const paginate = (pageNumber) => {
@@ -134,21 +142,20 @@ const CategoryProduct = () => {
       >
         Open Filters
       </button>
-       
-       {!categoryId ?(
+
+      {!categoryId ? (
         <FilterPanel
-        isOpen={showFilter}
-        onClose={() => setShowFilter(false)}
-        onApply={handleApplyFilters}
-      />
-       ):(
-        <Filter
           isOpen={showFilter}
-          onClose={()=> setShowFilter(false)}
+          onClose={() => setShowFilter(false)}
           onApply={handleApplyFilters}
         />
-       )}
-      
+      ) : (
+        <Filter
+          isOpen={showFilter}
+          onClose={() => setShowFilter(false)}
+          onApply={handleApplyFilters}
+        />
+      )}
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
