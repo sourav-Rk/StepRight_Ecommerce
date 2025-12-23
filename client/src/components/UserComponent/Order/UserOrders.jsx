@@ -2,6 +2,7 @@ import {
   cancelOrder,
   getUserOrders,
   makePayment,
+  retryPayment,
   updatePaymentStatus,
   verifyPayment,
 } from "@/Api/User/orderApi";
@@ -71,7 +72,7 @@ const UserOrders = () => {
         )
       );
       message.success(response.message);
-      await fetchUserOrders()
+      await fetchUserOrders();
     } catch (error) {
       console.log(error);
       message.error(error?.message || "Failed to cancel order");
@@ -101,8 +102,8 @@ const UserOrders = () => {
         return message.error("Order not found");
       }
 
-      const paymentData = { orderId: orderId, amount: order.totalAmount };
-      const razorpayOrder = await makePayment(paymentData);
+      const paymentData = { orderId: orderId };
+      const razorpayOrder = await retryPayment(paymentData);
 
       if (!razorpayOrder || !razorpayOrder.order) {
         return message.error("Failed to create Razorpay order");
@@ -289,22 +290,20 @@ const UserOrders = () => {
                       Retry Payment
                     </Button>
                   )}
-          
-                {order.paymentStatus ==="paid" && (
-                   <Button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     setSelectedOrder(order.orderId);
-                     setInvoiceOpen(true);
-                   }}
-                   className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white flex items-center text-sm rounded-lg"
-                 >
-                   <Download className="mr-1.5 h-3.5 w-3.5" />
-                   Invoice
-                 </Button>
 
+                {order.paymentStatus === "paid" && (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedOrder(order.orderId);
+                      setInvoiceOpen(true);
+                    }}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white flex items-center text-sm rounded-lg"
+                  >
+                    <Download className="mr-1.5 h-3.5 w-3.5" />
+                    Invoice
+                  </Button>
                 )}
-               
 
                 <div className="hidden md:block text-right">
                   <div className="text-sm font-medium text-slate-500">
@@ -411,25 +410,24 @@ const UserOrders = () => {
             </div>
 
             {/* Full Order Cancel Button */}
-            {
-              order.items.every(
-                (item) =>
-                  item.status === "Pending" || item.status === "Processing"
-              ) && (
-                <div className="p-5 bg-slate-50 border-t">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      confirmCancel(e, order.orderId);
-                    }}
-                    className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-medium rounded-lg flex items-center gap-2 transition-colors"
-                    variant="outline"
-                  >
-                    <X className="w-4 h-4" />
-                    Cancel Full Order
-                  </Button>
-                </div>
-              )}
+            {order.items.every(
+              (item) =>
+                item.status === "Pending" || item.status === "Processing"
+            ) && (
+              <div className="p-5 bg-slate-50 border-t">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    confirmCancel(e, order.orderId);
+                  }}
+                  className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-medium rounded-lg flex items-center gap-2 transition-colors"
+                  variant="outline"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel Full Order
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>
