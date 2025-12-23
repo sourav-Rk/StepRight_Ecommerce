@@ -29,7 +29,7 @@ export const makePayment = async (paymentData) => {
 //retry payment
 export const retryPayment = async (paymentData) => {
   try {
-    const response = await axiosInstance("/users/retryPayment", paymentData);
+    const response = await axiosInstance.post("/users/retryPayment", paymentData);
     return response.data;
   } catch (error) {
     throw error?.response?.data || error;
