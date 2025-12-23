@@ -96,7 +96,7 @@ const PersonalInformation = () => {
 
   const copyReferralLink = () => {
     const referralCode = userDetails.referralCode;
-    const referralLink = `https://step-right-ecommerce.vercel/signup?ref=${referralCode}`;
+    const referralLink = `https://step-right-ecommerce.vercel.app/signup?ref=${referralCode}`;
     
     navigator.clipboard.writeText(referralLink)
       .then(() => {
@@ -113,7 +113,7 @@ const PersonalInformation = () => {
   
   const shareReferralLink = () => {
     const referralCode = userDetails.referralCode ;
-    const referralLink = `https://step-right-ecommerce.vercel/signup?ref=${referralCode}`;
+    const referralLink = `https://step-right-ecommerce.vercel.app/signup?ref=${referralCode}`;
     
     if (navigator.share) {
       navigator.share({
@@ -302,7 +302,7 @@ const PersonalInformation = () => {
             <label className="block text-sm font-medium text-white/80 mb-2">Your Referral Link</label>
             <div className="flex items-center bg-white/30 rounded-lg p-2 break-all">
               <span className="text-sm truncate flex-1">
-              https://stepright.vercel.app/signup?ref={userDetails.referralCode || userDetails._id || 'USER123'}
+             https://step-right-ecommerce.vercel.app/signup?ref={userDetails.referralCode || userDetails._id || 'USER123'}
               </span>
               <button 
                 onClick={copyReferralLink} 
