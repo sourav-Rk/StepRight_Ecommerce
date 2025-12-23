@@ -3,7 +3,7 @@ dotenv.config();
 import { razorpay } from "../../config/RazorPay.js";
 import { errorHandler } from "../../Middleware/error.js";
 import crypto from "crypto";
-
+import orderDB from "../../Models/orderSchema.js";
 
 //make payment
 export const makePayment = async (req, res, next) => {
@@ -90,3 +90,38 @@ export const paymentVerification = (req, res, next) => {
   }
   return res.status(200).json({ success: true });
 };
+
+//retry payment
+export const retryPayment = async (req, res, next) => {
+  try {
+    const { orderId } = req.body;
+
+    const order = await orderDB.findOne({ orderId });
+
+    if (!order) {
+      return next(errorHandler(404, "Order not found"));
+    }
+
+    if (order.paymentStatus === "paid") {
+      return next(errorHandler(400, "Order already paid"));
+    }
+
+
+    const options = {
+      amount: order.totalAmount * 100,
+      currency: "INR",
+      receipt: `retry_${order.orderId}`,
+    };
+
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    order.transactionId = razorpayOrder.id;
+    await order.save();
+
+    res.status(200).json({ order: razorpayOrder });
+  } catch (err) {
+    next(errorHandler(500, "Retry payment failed"));
+  }
+};
+
+

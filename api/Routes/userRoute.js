@@ -59,6 +59,7 @@ import {
 import {
   makePayment,
   paymentVerification,
+  retryPayment,
 } from "../controllers/UserController/razorPayController.js";
 import { getCoupons } from "../controllers/UserController/couponController.js";
 import {
@@ -130,6 +131,7 @@ router.patch("/orders/:orderId/item/:itemId/return", returnItem); // to return a
 
 //razorpay
 router.post("/makePayment", validateProduct, makePayment); // to make the payment in the razorpay
+router.post("/retryPayment",retryPayment);
 router.post("/verifyPayment", paymentVerification); // to verify the payment
 router.post("/orders/update-payment", updatePaymentStatus); // to update the payment status
 
